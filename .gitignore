@@ -1,0 +1,45 @@
+*\#*
+_*
+._*
+*.bbl
+*.ilg
+*.log      
+*.blg
+*.ind
+*.lot
+*.toc
+*.acn
+*.glo
+*.ist
+*.out
+*.aux
+*.idx
+*.lof
+*.pdf
+*.npy
+
+# Build artifacts
+*.o
+*.a
+*.so
+*.dll
+*.dylib
+*.exe
+
+# IDE files
+*.iml
+
+# Temporary files
+build*
+*.tmp
+*.swp
+*.bak
+*.log
+*.pid
+*.seed
+*.stackdump
+
+# Data files
+*.csv
+*.dat
+data/*
