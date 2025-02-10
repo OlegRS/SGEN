@@ -10,7 +10,7 @@ def PCC(comp1, comp2, analytic_engine):
     return (analytic_engine.protein_protein_correlation(comp1,comp2) - analytic_engine.protein_expectation(comp1)*analytic_engine.protein_expectation(comp2))/(np.sqrt(analytic_engine.protein_protein_correlation(comp1,comp1)-analytic_engine.protein_expectation(comp1)**2)*np.sqrt(analytic_engine.protein_protein_correlation(comp2,comp2)-analytic_engine.protein_expectation(comp2)**2))
     
 Dendrite_length = 200 #um
-N_dendritic_segments = 50
+N_dendritic_segments = 10
 
 soma_length = 20
 soma = sg.Soma("soma",

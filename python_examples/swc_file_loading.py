@@ -2,20 +2,15 @@ import sys
 sys.path.append('../build')
 
 import SGEN_Py as sg
-
 import pyvista as pv
-# import neurom
 import numpy as np
 
 # Load the neuron morphology from the SWC file
-# neuron = neurom.load_morphology("10_2REDO-850-GM18-Ctl-Ctl-Chow-BNL16A-CA1_Finished2e.swc")
-# neuron = neurom.load_morphology("../../data/morphologies/10_2REDO-850-GM18-Ctl-Ctl-Chow-BNL16A-CA1_Finished2e.swc") # DD13-10-c5-1.CNG_.swc
+neuron = sg.Neuron("../data/morphologies/DD13-10-c6-2.CNG.swc")
 
-# neuron = neurom.load_morphology("../../data/morphologies/DD13-10-c6-2.CNG_.swc")
+# neuron = sg.Neuron("../data/morphologies/DD13-10-c5-1.CNG_.swc")
 
-# sg_neuron = sg.Neuron("../../data/morphologies/DD13-10-c5-1.CNG_.swc")
-
-neuron = sg.Neuron("../data/morphologies/10_2REDO-850-GM18-Ctl-Ctl-Chow-BNL16A-CA1_Finished2e.swc")
+# neuron = sg.Neuron("../data/morphologies/10_2REDO-850-GM18-Ctl-Ctl-Chow-BNL16A-CA1_Finished2e.swc")
 
 ae = sg.Analytic_engine(neuron)
 print("Computing mRNA expectations...")

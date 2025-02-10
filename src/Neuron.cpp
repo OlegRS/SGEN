@@ -124,8 +124,26 @@ Neuron::Neuron(const std::string& file_name, const std::string& name) : name(nam
         std::exit(1);
     }
 
+    ifs.seekg(-2, std::ios_base::end);
+    bool keepLooping = true;
+    while(keepLooping) {
+      char ch;
+      ifs.get(ch);
+
+      if(ch == '\n')
+        keepLooping = false;
+      else
+        ifs.seekg(-2, std::ios_base::cur);
+    }
+
+    //// Obtaining the total number of compartments as the last compartment's id
+    size_t n_comp;
+    ifs >> n_comp;
+    n_comp -= 2;
+    ifs.seekg(0);
+
     std::string line;
-    std::vector<std::unique_ptr<Compartment>> compartments;
+    Compartment** p_compartments = new Compartment*[n_comp];
     size_t id, type;
     double x, y, z, r;
     int parent_id;
@@ -143,91 +161,77 @@ Neuron::Neuron(const std::string& file_name, const std::string& name) : name(nam
 
       line_stream >> id >> type >> x >> y >> z >> r >> parent_id;
 
-      if (type == SOMA) {
-        compartments.emplace_back(std::make_unique<Soma>("soma_" + std::to_string(id-OFFSET), 3*r));
-        p_soma = static_cast<Soma*>(compartments.back().get());  // Store soma pointer
-      }
+      if (type == SOMA)
+        p_compartments[id-OFFSET-1] = p_soma = new Soma("soma_" + std::to_string(id-OFFSET), 3*r);
       else if (type == BASAL_DENDRITE || type == APICAL_DENDRITE) {
         if (parent_id == SOMA)
-          compartments.emplace_back(std::make_unique<Dendritic_segment>(*compartments[0], x, y, z, r, "ds_" + std::to_string(id), 2*r));
+          p_compartments[id-OFFSET-1] = new Dendritic_segment(*p_compartments[0], x, y, z, r, "ds_" + std::to_string(id), 2*r);
         else
-          compartments.emplace_back(std::make_unique<Dendritic_segment>(*compartments[parent_id-OFFSET-1], x, y, z, r, "ds_" + std::to_string(id), 2*r));
+          p_compartments[id-OFFSET-1] = new Dendritic_segment(*p_compartments[parent_id-OFFSET-1], x, y, z, r, "ds_" + std::to_string(id), 2*r);
       }
     }
     
     associate(*p_soma);
-
-    else {
-      std::cerr << "---------------------------------\n"
-                << "ERROR: Soma not found in SWC file\n"
-                << "---------------------------------\n";
-      std::exit(1);
-    }
+    delete[] p_compartments;
 }
 
 
+// Neuron::Neuron(const std::string& file_name, const std::string& name) : name(name) {
+//   size_t offset = 2; // For some reason .swc writes soma twice and assigns id=1 to it
+//   std::ifstream ifs(file_name);
 
+//   // Finding the total number of compartments in the file (including the axons)
+//   //// Moving the file pointer to the beginning of the last line
+//   if(ifs.is_open()) {
+//     ifs.seekg(-2, std::ios_base::end);
+//     bool keepLooping = true;
+//     while(keepLooping) {
+//       char ch;
+//       ifs.get(ch);
 
+//       if(ch == '\n')
+//         keepLooping = false;
+//       else
+//         ifs.seekg(-2, std::ios_base::cur);
+//     }
 
+//     //// Obtaining the total number of compartments as the last compartment's id
+//     size_t n_comp;
+//     ifs >> n_comp;
+//     n_comp -= 2;
+//     ifs.seekg(0);
 
-
-
-Neuron::Neuron(const std::string& file_name, const std::string& name) : name(name) {
-  size_t offset = 2; // For some reason .swc writes soma twice and assigns id=1 to it
-  std::ifstream ifs(file_name);
-
-  // Finding the total number of compartments in the file (including the axons)
-
-  if(ifs.is_open()) {
-    ifs.seekg(-2, std::ios_base::end);
-    bool keepLooping = true;
-    while(keepLooping) {
-      char ch;
-      ifs.get(ch);
-
-      if(ch == '\n')
-        keepLooping = false;
-      else
-        ifs.seekg(-2, std::ios_base::cur);
-    }
-
-    size_t total_N;
-
-    ifs >> total_N;
-    total_N -= 2;
-    ifs.seekg(0);
-
-    auto p_comps = new Compartment*[total_N];
+//     auto p_comps = new Compartment*[n_comp];
     
-    size_t id, type;
-    double  x, y, z, r;
-    int parent_id;
+//     size_t id, type;
+//     double  x, y, z, r;
+//     int parent_id;
 
-    for(size_t i=0; i<offset; ++i) // Offsetting
-      ifs >> id >> type >> x >> y >> z >> r >> parent_id;
+//     for(size_t i=0; i<offset; ++i) // Offsetting
+//       ifs >> id >> type >> x >> y >> z >> r >> parent_id;
 
-    while(ifs >> id >> type >> x >> y >> z >> r >> parent_id) {
-      if(type == SOMA)
-        p_comps[id-offset-1] = p_soma = new Soma("soma_" + std::to_string(id-offset), 3*r);
-      else if(type == BASAL_DENDRITE || type == APICAL_DENDRITE) {
-        if(parent_id != SOMA)
-          p_comps[id-offset-1] = new Dendritic_segment(*p_comps[parent_id-offset-1], x, y, x, r, "ds_" + std::to_string(id),2*r);
-        else
-          p_comps[id-offset-1] = new Dendritic_segment(*p_comps[0], x, y, x, r, "ds_" + std::to_string(id),2*r);
-      }
-    }
-    associate(*p_soma);
-    delete[] p_comps;
-    // std::cerr << *this;
-  }
-  else {
-    std::cerr << "----------------------\n"
-              << "ERROR: File not found\n"
-              << "----------------------\n";
-    exit(1);
-  }
-  ifs.close();
-}
+//     while(ifs >> id >> type >> x >> y >> z >> r >> parent_id) {
+//       if(type == SOMA)
+//         p_comps[id-offset-1] = p_soma = new Soma("soma_" + std::to_string(id-offset), 3*r);
+//       else if(type == BASAL_DENDRITE || type == APICAL_DENDRITE) {
+//         if(parent_id != SOMA)
+//           p_comps[id-offset-1] = new Dendritic_segment(*p_comps[parent_id-offset-1], x, y, x, r, "ds_" + std::to_string(id),2*r);
+//         else
+//           p_comps[id-offset-1] = new Dendritic_segment(*p_comps[0], x, y, x, r, "ds_" + std::to_string(id),2*r);
+//       }
+//     }
+//     associate(*p_soma);
+//     delete[] p_comps;
+//     // std::cerr << *this;
+//   }
+//   else {
+//     std::cerr << "----------------------\n"
+//               << "ERROR: File not found\n"
+//               << "----------------------\n";
+//     exit(1);
+//   }
+//   ifs.close();
+// }
 
 
 

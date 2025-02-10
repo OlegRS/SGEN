@@ -104,10 +104,10 @@ void Gillespie_engine::update_Gillespie() {
     ++i;
   if(i<p_events.size())
     (*p_events[i])(); // Triggering the event
-  else {
-    std::cerr <<"\n------------------------------\n"
-              <<" WARNING: GILLESPIE ENGINE ANOMALY DETECTED\n"
-              <<"\n------------------------------\n";
+  else { // Recalculate total rate when numerical errors accumulate
+    std::cerr <<"\n-----------------------------------------\n"
+              <<" WARNING: GILLESPIE ENGINE ANOMALY DETECTED"
+              <<"\n-----------------------------------------\n";
     double s=0;
     for(auto& p_event : p_events)
       s+=p_event->rate;
@@ -141,29 +141,22 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const double& time) {
   return *this;
 }
 
-Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times, std::ofstream& ofs, const double& time_offset) {
-  std::cerr << "Running Gillespie...\n";
+Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times, std::ostream& os, const double& time_offset) {
+  std::cout << "Running Gillespie...\n";
   size_t n_jumps = 0;
   
-  // ofs << "t," << "time," << "Soma_AG," << "Soma_mRNA,"<< "Soma_Prot";
-  // for(auto& p_ds : p_neuron->p_dend_segments)
-  //   ofs << ',' + p_ds->name + "_mRNA," + p_ds->name + "_Prot";
-  // for(auto& p_s : p_neuron->p_synapses)
-  //   ofs << ',' + p_s->name + "_Prot";
-  // ofs << std::endl;
-
   double t = 0;
   double time_written;
   for(auto it_times=times.begin(); it_times!=times.end(); ) {
     if(*it_times > t) {
       t += draw_delta_t();
       while(*it_times <= t && it_times!=times.end()) {
-        ofs << t << ',' << time_offset + (time_written=*it_times) << ',' << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins;
+        os << t << ',' << time_offset + (time_written=*it_times) << ',' << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins;
         for(auto& p_ds : p_neuron->p_dend_segments)
-          ofs << ',' << p_ds->n_mRNAs << ',' << p_ds->n_proteins;
+          os << ',' << p_ds->n_mRNAs << ',' << p_ds->n_proteins;
         for(auto& p_s : p_neuron->p_synapses)
-          ofs << ',' << p_s->n_proteins;
-        ofs << std::endl;
+          os << ',' << p_s->n_proteins;
+        os << std::endl;
         ++it_times;
       }
       update_Gillespie();
@@ -172,16 +165,69 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times
     }
     else {
       if(time_written != *it_times) {
-        ofs << t << ',' << time_offset + *it_times << ',' << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins;
+        os << t << ',' << time_offset + *it_times << ',' << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins;
         for(auto& p_ds : p_neuron->p_dend_segments)
-          ofs << ',' << p_ds->n_mRNAs << ',' << p_ds->n_proteins;
+          os << ',' << p_ds->n_mRNAs << ',' << p_ds->n_proteins;
         for(auto& p_s : p_neuron->p_synapses)
-          ofs << ',' << p_s->n_proteins;
-        ofs << std::endl;
+          os << ',' << p_s->n_proteins;
+        os << std::endl;
       }
       ++it_times;
     }
   }
-  std::cerr << "n_jumps = " << n_jumps << std::endl;
+  std::cout << "n_jumps = " << n_jumps << std::endl;
   return *this;
+}
+
+Gillespie_engine& Gillespie_engine::run_Gillespie(const std::vector<double>& times, const std::string& file_name, const double& time_offset) {
+  std::cout << "Running Gillespie...\n";
+
+  std::ofstream ofs(file_name);
+
+  print_variable_names(ofs << "t,") << std::endl;
+  
+  size_t n_jumps = 0;
+  double t = 0;
+  for(auto it_times=times.begin(); it_times!=times.end();) {
+    if(*it_times >= t) {
+      t += draw_delta_t();
+      while(it_times!=times.end() && *it_times <= t)
+        print_variables(ofs << time_offset + *it_times++ << ',') << std::endl;
+
+      if(it_times!=times.end()) {// This would rarely not be the case
+        update_Gillespie();           
+        ++n_jumps;
+      }
+    }
+    else {// This should never happen. Keeping for debugging as it does not affect performance.
+      std::cerr << "\n------------------------------------------------------\n"
+                << "WARNING: Something weird just happened with Gillespie algorithm!"
+                << "\n------------------------------------------------------\n";
+      ++it_times;
+    }
+  }
+  std::cout << "n_jumps = " << n_jumps << std::endl;
+
+  ofs.close();
+  return *this;
+}
+
+inline std::ostream& Gillespie_engine::print_variables(std::ostream& os) {
+  os << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins;
+  for(auto& p_ds : p_neuron->p_dend_segments)
+    os << ',' << p_ds->n_mRNAs << ',' << p_ds->n_proteins;
+  for(auto& p_s : p_neuron->p_synapses)
+    os << ',' << p_s->n_proteins;
+
+  return os;
+}
+
+inline std::ostream& Gillespie_engine::print_variable_names(std::ostream& os) {
+  os << "Soma_AG," << "Soma_mRNA,"<< "Soma_Prot";
+  for(auto& p_ds : p_neuron->p_dend_segments)
+    os << ',' << p_ds->name + "_mRNA," << p_ds->name+"_Prot";
+  for(auto& p_s : p_neuron->p_synapses)
+    os << ',' << p_s->name + "_Prot";
+  
+  return os;
 }

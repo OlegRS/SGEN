@@ -5,7 +5,6 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
-#include <vector>
 #include <list>
 
 #include "compartments/Compartment.hpp"
