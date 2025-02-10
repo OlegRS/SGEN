@@ -142,16 +142,9 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const double& time) {
 }
 
 Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times, std::ofstream& ofs, const double& time_offset) {
-  std::cerr << "Running Gillespie...\n";
+  std::cout << "Running Gillespie...\n";
   size_t n_jumps = 0;
   
-  // ofs << "t," << "time," << "Soma_AG," << "Soma_mRNA,"<< "Soma_Prot";
-  // for(auto& p_ds : p_neuron->p_dend_segments)
-  //   ofs << ',' + p_ds->name + "_mRNA," + p_ds->name + "_Prot";
-  // for(auto& p_s : p_neuron->p_synapses)
-  //   ofs << ',' + p_s->name + "_Prot";
-  // ofs << std::endl;
-
   double t = 0;
   double time_written;
   for(auto it_times=times.begin(); it_times!=times.end(); ) {
@@ -182,6 +175,49 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times
       ++it_times;
     }
   }
-  std::cerr << "n_jumps = " << n_jumps << std::endl;
+  std::cout << "n_jumps = " << n_jumps << std::endl;
+  return *this;
+}
+
+Gillespie_engine& Gillespie_engine::run_Gillespie(const std::vector<double>& times, const std::string& file_name, const double& time_offset) {
+  std::cout << "Running Gillespie...\n";
+
+  std::ofstream ofs(file_name);
+    
+  size_t n_jumps = 0;
+  
+  double t = 0;
+  double time_written;
+  for(auto it_times=times.begin(); it_times!=times.end(); ) {
+    if(*it_times > t) {
+      t += draw_delta_t();
+      while(*it_times <= t && it_times!=times.end()) {
+        ofs << t << ',' << time_offset + (time_written=*it_times) << ',' << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins;
+        for(auto& p_ds : p_neuron->p_dend_segments)
+          ofs << ',' << p_ds->n_mRNAs << ',' << p_ds->n_proteins;
+        for(auto& p_s : p_neuron->p_synapses)
+          ofs << ',' << p_s->n_proteins;
+        ofs << std::endl;
+        ++it_times;
+      }
+      update_Gillespie();
+           
+      n_jumps++;
+    }
+    else {
+      if(time_written != *it_times) {
+        ofs << t << ',' << time_offset + *it_times << ',' << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins;
+        for(auto& p_ds : p_neuron->p_dend_segments)
+          ofs << ',' << p_ds->n_mRNAs << ',' << p_ds->n_proteins;
+        for(auto& p_s : p_neuron->p_synapses)
+          ofs << ',' << p_s->n_proteins;
+        ofs << std::endl;
+      }
+      ++it_times;
+    }
+  }
+  std::cout << "n_jumps = " << n_jumps << std::endl;
+
+  ofs.close();
   return *this;
 }

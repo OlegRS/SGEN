@@ -6,83 +6,59 @@ import SGEN_Py as sg
 import pyvista as pv
 import numpy as np
 
-def PCC(comp1, comp2, analytic_engine):
-    return (analytic_engine.protein_protein_correlation(comp1,comp2) - analytic_engine.protein_expectation(comp1)*analytic_engine.protein_expectation(comp2))/(np.sqrt(analytic_engine.protein_protein_correlation(comp1,comp1)-analytic_engine.protein_expectation(comp1)**2)*np.sqrt(analytic_engine.protein_protein_correlation(comp2,comp2)-analytic_engine.protein_expectation(comp2)**2))
-    
 Dendrite_length = 200 #um
-N_dendritic_segments = 10
+N_dendritic_segments = 15
 
-soma_length = 20
-soma = sg.Soma("soma",
-               length=soma_length,
-               radius=10,
-               translation_rate=75.6*200/soma_length,
-               protein_diffusion_constant=0.24)
+soma = sg.Soma("soma", 20, x=0, y=0, z=0, radius=20)
 
-primary_branch = [sg.Dendritic_segment(protein_diffusion_constant=0.24,
-                                       translation_rate=0,
-                                       parent=soma,
-                                       name = "d_1",
+primary_branch = [sg.Dendritic_segment(parent=soma,
+                                       name = "d_1-1",
                                        length = Dendrite_length/N_dendritic_segments)]
+
 for i in np.arange(1,N_dendritic_segments):
-    primary_branch.append(sg.Dendritic_segment(protein_diffusion_constant=0.24,
-                                               translation_rate=0,
-                                               parent=primary_branch[-1],
-                                               name="d_" + str(i+1),
+    primary_branch.append(sg.Dendritic_segment(parent=primary_branch[i-1],
+                                               name="d_1-" + str(i+1),
                                                length=Dendrite_length/N_dendritic_segments))
-  
-secondary_branch_1 = [sg.Dendritic_segment(protein_diffusion_constant=0.24,
-                                           translation_rate=0,
-                                           parent=primary_branch[-1],
-                                           name="d_1_1",
+
+secondary_branch_1 = [sg.Dendritic_segment(parent=primary_branch[N_dendritic_segments-1],
+                                           name="d_1_1-0",
                                            length=Dendrite_length/N_dendritic_segments,
                                            d_theta=30*np.pi/360,
                                            d_phi=0)]
 for i in np.arange(1,N_dendritic_segments):
-    secondary_branch_1.append(sg.Dendritic_segment(protein_diffusion_constant=0.24,
-                                                   translation_rate=0,
-                                                   parent=secondary_branch_1[-1],
-                                                   name="d_1_" + str(i+1),
+    secondary_branch_1.append(sg.Dendritic_segment(parent=secondary_branch_1[i-1],
+                                                   name="d_1_1-" + str(i+1),
                                                    length=Dendrite_length/N_dendritic_segments))
 
-secondary_branch_2 = [sg.Dendritic_segment(protein_diffusion_constant=0.24,
-                                           translation_rate=0,
-                                           parent=primary_branch[-1],
-                                           name="d_1_2",
+secondary_branch_2 = [sg.Dendritic_segment(parent=primary_branch[N_dendritic_segments-1],
+                                           name="d_1_1-0",
                                            length=Dendrite_length/N_dendritic_segments,
                                            d_theta=-30*np.pi/360,
                                            d_phi=0)]
 for i in np.arange(1,N_dendritic_segments):
-    secondary_branch_2.append(sg.Dendritic_segment(protein_diffusion_constant=0.24,
-                                                   translation_rate=0,
-                                                   parent=secondary_branch_2[-1],
+    secondary_branch_2.append(sg.Dendritic_segment(parent=secondary_branch_2[i-1],
                                                    name="d_1_1-" + str(i+1),
-                                                   length=Dendrite_length/N_dendritic_segments))
-                                                   # radius=5*np.exp(-1/200*i)))
+                                                   length=Dendrite_length/N_dendritic_segments,
+                                                   radius=5*np.exp(-1/50*i)))
 
-# Placing "ribosomes"
-# primary_branch[int(N_dendritic_segments/3)].set_translation_rate(75.6*200/(Dendrite_length/N_dendritic_segments))
-secondary_branch_1[int(N_dendritic_segments/3)].set_translation_rate(75.6*200/(Dendrite_length/N_dendritic_segments))
 
 # Creating dendritic spines
 s_1_1 = sg.Spine(parent=primary_branch[int(N_dendritic_segments/3)],
-                 name="s_1_1",
-                 length=10,
-                 radius=1)
+                   name="s_1_1",
+                   length=10,
+                   radius=1)
 s_1_2 = sg.Spine(parent=primary_branch[int(2*N_dendritic_segments/3)],
-                 name="s_1_2",
-                 length=10,
-                 radius=1,
-                 d_theta=-np.pi/2)
+                   name="s_1_2",
+                   length=10,
+                   radius=1)
 s_11_1 = sg.Spine(parent=secondary_branch_1[int(N_dendritic_segments/3)],
-                  name = "s_11_1",
-                  length=10,
-                  radius=1)
+                    name = "s_11_1",
+                    length=10,
+                    radius=1)
 s_11_2 = sg.Spine(parent=secondary_branch_1[int(2*N_dendritic_segments/3)],
-                  name = "s_11_2",
-                  length=10,
-                  radius=1,
-                  d_theta=-np.pi/2)
+                    name = "s_11_2",
+                    length=10,
+                    radius=1)
 s_12_1 = sg.Spine(parent=secondary_branch_2[int(N_dendritic_segments/3)],
                   name="s_12_1",
                   length=10,
@@ -91,16 +67,23 @@ s_12_1 = sg.Spine(parent=secondary_branch_2[int(N_dendritic_segments/3)],
 s_12_2 = sg.Spine(parent=secondary_branch_2[int(2*N_dendritic_segments/3)],
                   name="s_12_2",
                   length=10,
-                  radius=1)
+                  radius=1,
+                  d_theta=-np.pi/2)
 
 neuron = sg.Neuron(soma, "Test_neuron")
+
+ge = sg.Gillespie_engine(neuron)
+
+me = sg.Morphologic_engine(neuron)
+
+segments = me.segments()
+volumes = me.volumes()
 
 ae = sg.Analytic_engine(neuron)
 print("Computing mRNA expectations...")
 mRNA_expectations = np.array(ae.stationary_mRNA_expectations())
 print("Computing protein expectations...")
 prot_expectations = np.array(ae.stationary_protein_expectations())
-
 print("Computing gene-mRNA correlations...")
 gene_mRNA_covariances = np.array(ae.stationary_gene_mRNA_covariances())
 print("Computing mRNA-mRNA correlations...")
@@ -112,30 +95,33 @@ mRNA_prot_covariances = np.array(ae.stationary_mRNA_protein_covariances())
 print("Computing protein-protein correlations...")
 prot_prot_covariances = np.array(ae.stationary_protein_protein_covariances())
 
-# prot_FFs = [prot_prot_covariances[i,i]-prot_expectations[i]**2 for i in range(len(prot_expectations))]/prot_expectations
+prot_FFs = [prot_prot_covariances[i,i]-prot_expectations[i]**2 for i in range(len(prot_expectations))]/prot_expectations
 
-# Get the neuron segments and their volumes
-me = sg.Morphologic_engine(neuron)
-segments = me.segments()
-volumes = me.volumes()
+# ae.stationary_expectations_and_correlations()
 
+# Extract the neuron segments and nodes
 start_points = [segments[i][0][:3] for i in range(len(segments))]
 end_points = [segments[i][1][:3] for i in range(len(segments))]
 radii = [segments[i][0][3] for i in range(len(segments))]
 
-prot_concentrations = prot_expectations/volumes
-mRNA_concentrations = mRNA_expectations/volumes
-# segment_values = np.flip(mRNA_expectations)
-segment_values = np.flip(prot_concentrations)
-# segment_values = np.flip(np.log(prot_expectations))
+# prot_expectations = np.genfromtxt("protein_expectations", delimiter='\n')
+# prot_expectations = np.genfromtxt("protein_expectations.dat", delimiter='\n')
+prot_concentrations = prot_expectations/volumes 
+# prot_concentrations = [prot_expectations[i]/volumes[i] for i in range(len(volumes))]
+segment_values = np.flip(prot_FFs)
+# segment_values = np.log(prot_expectations)
 
 # Convert the neuron morphology into a mesh for visualization in PyVista
-# Make a tube for each segment
+
+# You can create a line or tube representation of the morphology by using segments (radii)
+# Make a tube for each segment to represent dendrites
 tubes = []
 all_scalars = [] # Collect scalars for the final mesh
 for i in range(0,len(segments)):
     start, end = start_points[i], end_points[i]
     radius = radii[i]  # Radius of the current segment
+    # print("radius=", radius)
+    # print("segment_values[i]=", segment_values[i])
 
     # Create a tube (cylinder) between two coordinates
     tube = pv.Line(start, end).tube(radius=radius)

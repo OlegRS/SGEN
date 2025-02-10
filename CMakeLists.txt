@@ -47,6 +47,7 @@ set(BINDING_SOURCES
   bindings/Neuron_binding.cpp
   bindings/engines/Analytic_engine_binding.cpp
   bindings/engines/Morphologic_engine_binding.cpp
+  bindings/engines/Gillespie_engine.cpp
 )
 
 # Add Python bindings module

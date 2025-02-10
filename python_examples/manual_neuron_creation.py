@@ -144,6 +144,3 @@ plotter = pv.Plotter()
 plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="coolwarm", show_edges=False)
 plotter.show_axes()
 plotter.show()
-
-# Pearson correlation coefficient
-# (ae.protein_protein_correlation(s_1_1, s_12_1) - ae.protein_expectation(s_1_1)*ae.protein_expectation(s_12_1))/(np.sqrt(ae.protein_protein_correlation(s_1_1, s_1_1)-ae.protein_expectation(s_1_1)**2)*np.sqrt(ae.protein_protein_correlation(s_12_1, s_12_1)-ae.protein_expectation(s_12_1)**2))
