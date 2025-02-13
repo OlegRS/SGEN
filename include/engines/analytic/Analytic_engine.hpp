@@ -13,7 +13,7 @@
 
 class Analytic_engine {
   // Parameters
-  Neuron* p_neuron = NULL;
+  Neuron* p_neuron = nullptr;
   unsigned int o1_dim, o2_dim;
   arma::mat *p_Ap, *p_Am, *p_H,
     *p_mRNA_Ap, *p_mRNA_Am, *p_mRNA_H,
@@ -140,12 +140,12 @@ public:
     p_neuron(&neuron),
     o1_dim(3 + 2*neuron.p_dend_segments.size() + neuron.p_synapses.size()),
     o2_dim(o1_dim*(o1_dim+1)/2),
-    p_Ap(NULL), p_Am(NULL), p_H(NULL), p_b(NULL),
-    p_mRNA_Ap(NULL), p_mRNA_Am(NULL), p_mRNA_H(NULL),
-    p_prot_Ap(NULL), p_prot_Am(NULL), p_prot_H(NULL),
-    p_PM(NULL),
-    p_mRNA_mRNA_cov_mat(NULL), p_prot_prot_cov_mat(NULL),
-    p_o1_mat(NULL), p_o1_RHS(NULL),
+    p_Ap(nullptr), p_Am(nullptr), p_H(nullptr), p_b(nullptr),
+    p_mRNA_Ap(nullptr), p_mRNA_Am(nullptr), p_mRNA_H(nullptr),
+    p_prot_Ap(nullptr), p_prot_Am(nullptr), p_prot_H(nullptr),
+    p_PM(nullptr),
+    p_mRNA_mRNA_cov_mat(nullptr), p_prot_prot_cov_mat(nullptr),
+    p_o1_mat(nullptr), p_o1_RHS(nullptr),
     o1_mRNA_matrix(1+neuron.p_dend_segments.size(), 1+neuron.p_dend_segments.size()),
     o1_prot_matrix(1+neuron.p_dend_segments.size()+neuron.p_synapses.size(), 1+neuron.p_dend_segments.size()+neuron.p_synapses.size()),
     o1_mRNA_RHS(1+neuron.p_dend_segments.size()),
@@ -154,22 +154,22 @@ public:
     o1_prot_RHS(1+neuron.p_dend_segments.size()+neuron.p_synapses.size()),
     protein_expectations(1+neuron.p_dend_segments.size()+neuron.p_synapses.size()),
     o1_prot_names(1+neuron.p_dend_segments.size()+neuron.p_synapses.size()),
-    p_o2_mat(NULL), p_o2_RHS(NULL), p_o2_var_names(NULL), p_covariances(NULL),
+    p_o2_mat(nullptr), p_o2_RHS(nullptr), p_o2_var_names(nullptr), p_covariances(nullptr),
     expectations(o1_dim),
     o1_var_names(o1_dim),
     p_o1_vars(o1_dim),
     p_o1_mRNA_expectations(1+neuron.p_dend_segments.size()),
     p_o1_prot_expectations(1+neuron.p_dend_segments.size()+neuron.p_synapses.size()),
     o2_gene_gene(neuron.p_soma->gene_activation_rate*(neuron.p_soma->number_of_gene_copies-1)/(neuron.p_soma->gene_activation_rate + neuron.p_soma->gene_deactivation_rate)*neuron.p_soma->n_active_genes_expectation),
-    o2_gene_mRNA(NULL), o2_gene_mRNA_RHS(NULL), o2_gene_mRNA_mat(NULL),
-    o2_gene_prot(NULL), o2_gene_prot_RHS(NULL), o2_gene_prot_mat(NULL),
-    o2_mRNA_mRNA(NULL), o2_mRNA_mRNA_RHS(NULL), o2_mRNA_mRNA_mat(NULL),
-    o2_mRNA_prot(NULL), o2_mRNA_prot_RHS(NULL), o2_mRNA_prot_mat(NULL),
-    o2_prot_prot(NULL), o2_prot_prot_RHS(NULL), o2_prot_prot_mat(NULL),
-    o2_nonstationary_RHS_mat(NULL)
+    o2_gene_mRNA(nullptr), o2_gene_mRNA_RHS(nullptr), o2_gene_mRNA_mat(nullptr),
+    o2_gene_prot(nullptr), o2_gene_prot_RHS(nullptr), o2_gene_prot_mat(nullptr),
+    o2_mRNA_mRNA(nullptr), o2_mRNA_mRNA_RHS(nullptr), o2_mRNA_mRNA_mat(nullptr),
+    o2_mRNA_prot(nullptr), o2_mRNA_prot_RHS(nullptr), o2_mRNA_prot_mat(nullptr),
+    o2_prot_prot(nullptr), o2_prot_prot_RHS(nullptr), o2_prot_prot_mat(nullptr),
+    o2_nonstationary_RHS_mat(nullptr)
   {
     neuron.prot_ind = neuron.p_dend_segments.size()+1;
-    p_cov_mat = cov_mat_init ? new arma::mat(o1_dim, o1_dim) : NULL;
+    p_cov_mat = cov_mat_init ? new arma::mat(o1_dim, o1_dim) : nullptr;
   }
   
   std::string master_equation() const; // Not implemented

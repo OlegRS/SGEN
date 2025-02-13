@@ -7,9 +7,9 @@ import pyvista as pv
 import numpy as np
 
 Dendrite_length = 200 #um
-N_dendritic_segments = 15
+N_dendritic_segments = 5
 
-soma = sg.Soma("soma", 20, x=0, y=0, z=0, radius=20)
+soma = sg.Soma("soma", length=20, x=0, y=0, z=0, radius=20)
 
 primary_branch = [sg.Dendritic_segment(parent=soma,
                                        name = "d_1-1",
@@ -73,9 +73,7 @@ s_12_2 = sg.Spine(parent=secondary_branch_2[int(2*N_dendritic_segments/3)],
 neuron = sg.Neuron(soma, "Test_neuron")
 
 me = sg.Morphologic_engine(neuron)
-
-segments = me.segments()
-volumes = me.volumes()
+segments, volumes = me.segments(), me.volumes()
 
 ae = sg.Analytic_engine(neuron)
 print("Computing mRNA expectations...")
@@ -100,7 +98,9 @@ prot_FFs = [prot_prot_covariances[i,i]-prot_expectations[i]**2 for i in range(le
 # Extract the neuron segments and nodes
 start_points = [segments[i][0][:3] for i in range(len(segments))]
 end_points = [segments[i][1][:3] for i in range(len(segments))]
-radii = [segments[i][0][3] for i in range(len(segments))]
+radii = [segments[i][1][3] for i in range(len(segments))]
+
+print(segments)
 
 # prot_expectations = np.genfromtxt("protein_expectations", delimiter='\n')
 # prot_expectations = np.genfromtxt("protein_expectations.dat", delimiter='\n')

@@ -146,12 +146,11 @@ prot_expectations = np.array(ae.stationary_protein_expectations())
 
 # Get the neuron segments and their volumes
 me = sg.Morphologic_engine(neuron)
-segments = me.segments()
-volumes = me.volumes()
+segments, volumes = me.segments(), me.volumes()
 
 start_points = [segments[i][0][:3] for i in range(len(segments))]
 end_points = [segments[i][1][:3] for i in range(len(segments))]
-radii = [segments[i][0][3] for i in range(len(segments))]
+radii = [segments[i][1][3] for i in range(len(segments))]
 
 prot_concentrations = prot_expectations/volumes
 mRNA_concentrations = mRNA_expectations/volumes

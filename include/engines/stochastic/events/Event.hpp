@@ -30,7 +30,7 @@ struct Event {
   };
 
 
-  Event(void* p_loc=NULL) : p_location(p_loc) {}
+  Event(void* p_loc=nullptr) : p_location(p_loc) {}
   
   void* p_location; // Compartment or junction, where event takes place
   double rate;

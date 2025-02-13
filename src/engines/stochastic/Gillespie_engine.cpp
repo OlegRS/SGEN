@@ -180,6 +180,28 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times
 }
 
 Gillespie_engine& Gillespie_engine::run_Gillespie(const std::vector<double>& times, const std::string& file_name, const double& time_offset) {
+  for(auto it_times=times.begin(); it_times!=times.end()-1;) {
+    if(*it_times < 0) {
+      std::cerr << "\n------------------------------------------------------\n"
+                << "- ERROR in run_Gillespie: record_times should be positive!"
+                << "\n------------------------------------------------------\n";
+      return *this;
+    }
+    if(*it_times == *(it_times+1)) {
+      std::cerr << "\n------------------------------------------------------\n"
+                << "- WARNING from run_Gillespie: there are repeated record_times!"
+                << "\n------------------------------------------------------\n";
+      return *this;
+    }
+    if(*it_times > *++it_times) {
+      std::cerr << "\n------------------------------------------------------\n"
+                << "- ERROR in run_Gillespie: record_times should be ordered in ascending order!"
+                << "\n------------------------------------------------------\n";
+      return *this;
+    }
+  }
+
+      
   std::cout << "Running Gillespie...\n";
 
   std::ofstream ofs(file_name);
@@ -194,7 +216,7 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const std::vector<double>& tim
       while(it_times!=times.end() && *it_times <= t)
         print_variables(ofs << time_offset + *it_times++ << ',') << std::endl;
 
-      if(it_times!=times.end()) {// This would rarely not be the case
+      if(it_times!=times.end()) {// This would rarely not be the case with high event rates
         update_Gillespie();           
         ++n_jumps;
       }

@@ -6,11 +6,11 @@ import pyvista as pv
 import numpy as np
 
 # Load the neuron morphology from the SWC file
-neuron = sg.Neuron("../data/morphologies/DD13-10-c6-2.CNG.swc")
+# neuron = sg.Neuron("../data/morphologies/DD13-10-c6-2.CNG.swc")
 
 # neuron = sg.Neuron("../data/morphologies/DD13-10-c5-1.CNG_.swc")
 
-# neuron = sg.Neuron("../data/morphologies/10_2REDO-850-GM18-Ctl-Ctl-Chow-BNL16A-CA1_Finished2e.swc")
+neuron = sg.Neuron("../data/morphologies/10_2REDO-850-GM18-Ctl-Ctl-Chow-BNL16A-CA1_Finished2e.swc")
 
 ae = sg.Analytic_engine(neuron)
 print("Computing mRNA expectations...")
@@ -34,6 +34,7 @@ prot_expectations = np.array(ae.stationary_protein_expectations())
 
 me = sg.Morphologic_engine(neuron)
 segments = me.segments()
+volumes = me.volumes()
 
 start_points = [segments[i][0][:3] for i in range(len(segments))]
 end_points = [segments[i][1][:3] for i in range(len(segments))]
@@ -42,7 +43,7 @@ radii = [segments[i][1][3] for i in range(len(segments))]
 # prot_expectations = np.genfromtxt("protein_expectations", delimiter='\n')
 # prot_expectations = np.genfromtxt("mRNA_expectations.dat", delimiter='\n')
 
-segment_values = np.flip(np.log(prot_expectations))
+segment_values = np.flip(np.log(mRNA_expectations/volumes))
 
 # Convert the neuron morphology into a mesh for visualization in PyVista
 

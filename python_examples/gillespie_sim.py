@@ -75,4 +75,4 @@ neuron = sg.Neuron(soma, "Test_neuron")
 ge = sg.Gillespie_engine(neuron) # Initialise Gillespie_engine for a given neuron 
 # Run Gillespie algorithm for 100 hours recording every hour to test_Gillespie_out.csv.
 # time_offset=-10 tells that the algorithm starts at t=-10 (useful for plotting sometimes)
-ge.run_Gillespie(record_times=np.arange(0,100), file_name="test_Gillespie_out.csv", time_offset=-10)
+ge.run_Gillespie(record_times=range(100), file_name="test_Gillespie_out.csv", time_offset=-10)

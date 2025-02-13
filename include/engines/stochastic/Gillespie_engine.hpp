@@ -54,9 +54,7 @@ public:
 
   Gillespie_engine& run_Gillespie(const double& time);
   Gillespie_engine& run_Gillespie(const std::list<double>& write_times, std::ostream&, const double& time_offset=0);
-  Gillespie_engine& run_Gillespie(const std::vector<double>& write_times, const std::string& file_name="Gillespie_out.csv", const double& time_offset=0);
-  
-  
+  Gillespie_engine& run_Gillespie(const std::vector<double>& write_times, const std::string& file_name, const double& time_offset=0);
 };
 
 #endif

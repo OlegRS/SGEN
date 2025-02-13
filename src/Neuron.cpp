@@ -67,7 +67,7 @@ void Neuron::associate(Compartment& compartment) {
 }
 
 // void Neuron::dissociate(Compartment& compartment) {
-//   compartment.p_neuron = NULL;
+//   compartment.p_neuron = nullptr;
 
 //   Compartment::Type type = compartment.type();
 
@@ -161,83 +161,22 @@ Neuron::Neuron(const std::string& file_name, const std::string& name) : name(nam
 
       line_stream >> id >> type >> x >> y >> z >> r >> parent_id;
 
+      // Assume the coordinates in .swc files are the ends of the compartments
       if (type == SOMA)
-        p_compartments[id-OFFSET-1] = p_soma = new Soma("soma_" + std::to_string(id-OFFSET), 3*r);
+        p_compartments[id-OFFSET-1] = p_soma = new Soma("soma_" + std::to_string(id-OFFSET), r, 0, 0, 0, r); // Place soma to the origin and assume it is oriented as (0,0,1) with radius and length r
       else if (type == BASAL_DENDRITE || type == APICAL_DENDRITE) {
-        if (parent_id == SOMA)
-          p_compartments[id-OFFSET-1] = new Dendritic_segment(*p_compartments[0], x, y, z, r, "ds_" + std::to_string(id), 2*r);
-        else
-          p_compartments[id-OFFSET-1] = new Dendritic_segment(*p_compartments[parent_id-OFFSET-1], x, y, z, r, "ds_" + std::to_string(id), 2*r);
+        if (parent_id == 1) // If parent is SOMA
+          p_compartments[id-OFFSET-1] = new Dendritic_segment(*p_compartments[0], x, y, z, r, "ds_" + std::to_string(id), sqrt(x*x + y*y + z*z));
+        else {
+          Compartment* p_parent = p_compartments[parent_id-OFFSET-1];
+          p_compartments[id-OFFSET-1] = new Dendritic_segment(*p_parent, x, y, z, r, "ds_" + std::to_string(id), sqrt((x-p_parent->x)*(x-p_parent->x)+(y-p_parent->y)*(y-p_parent->y)+(z-p_parent->z)*(z-p_parent->z)));
+        }
       }
     }
     
     associate(*p_soma);
     delete[] p_compartments;
 }
-
-
-// Neuron::Neuron(const std::string& file_name, const std::string& name) : name(name) {
-//   size_t offset = 2; // For some reason .swc writes soma twice and assigns id=1 to it
-//   std::ifstream ifs(file_name);
-
-//   // Finding the total number of compartments in the file (including the axons)
-//   //// Moving the file pointer to the beginning of the last line
-//   if(ifs.is_open()) {
-//     ifs.seekg(-2, std::ios_base::end);
-//     bool keepLooping = true;
-//     while(keepLooping) {
-//       char ch;
-//       ifs.get(ch);
-
-//       if(ch == '\n')
-//         keepLooping = false;
-//       else
-//         ifs.seekg(-2, std::ios_base::cur);
-//     }
-
-//     //// Obtaining the total number of compartments as the last compartment's id
-//     size_t n_comp;
-//     ifs >> n_comp;
-//     n_comp -= 2;
-//     ifs.seekg(0);
-
-//     auto p_comps = new Compartment*[n_comp];
-    
-//     size_t id, type;
-//     double  x, y, z, r;
-//     int parent_id;
-
-//     for(size_t i=0; i<offset; ++i) // Offsetting
-//       ifs >> id >> type >> x >> y >> z >> r >> parent_id;
-
-//     while(ifs >> id >> type >> x >> y >> z >> r >> parent_id) {
-//       if(type == SOMA)
-//         p_comps[id-offset-1] = p_soma = new Soma("soma_" + std::to_string(id-offset), 3*r);
-//       else if(type == BASAL_DENDRITE || type == APICAL_DENDRITE) {
-//         if(parent_id != SOMA)
-//           p_comps[id-offset-1] = new Dendritic_segment(*p_comps[parent_id-offset-1], x, y, x, r, "ds_" + std::to_string(id),2*r);
-//         else
-//           p_comps[id-offset-1] = new Dendritic_segment(*p_comps[0], x, y, x, r, "ds_" + std::to_string(id),2*r);
-//       }
-//     }
-//     associate(*p_soma);
-//     delete[] p_comps;
-//     // std::cerr << *this;
-//   }
-//   else {
-//     std::cerr << "----------------------\n"
-//               << "ERROR: File not found\n"
-//               << "----------------------\n";
-//     exit(1);
-//   }
-//   ifs.close();
-// }
-
-
-
-
-
-
 
 std::ostream& operator<<(std::ostream &os , const Neuron &neur) {
 

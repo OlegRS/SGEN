@@ -30,7 +30,7 @@ std::ostream& operator<<(std::ostream &os, const Compartment &comp) {
 //   p_attached_compartments.push_back(parent);
 //   parent -> p_attached_compartments.push_back(*this);
 //   p_neuron = parent->p_neuron;
-//   if(p_neuron == NULL)
+//   if(p_neuron == nullptr)
 //     return;
 //   else
 //     add_compartment(*this);

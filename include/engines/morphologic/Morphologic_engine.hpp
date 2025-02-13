@@ -11,7 +11,7 @@
 
 class Morphologic_engine {
 
-  Neuron* p_neuron = NULL;
+  Neuron* p_neuron = nullptr;
   
 public:
 

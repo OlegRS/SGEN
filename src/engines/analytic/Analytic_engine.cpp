@@ -2918,8 +2918,8 @@ Analytic_engine& Analytic_engine::gene_mRNA_stationary_covariances() {
   
   o2_gene_mRNA = new arma::vec((*o2_gene_mRNA_mat).i()*(*o2_gene_mRNA_RHS));
 
-  delete o2_gene_mRNA_mat; o2_gene_mRNA_mat=NULL;
-  delete o2_gene_mRNA_RHS; o2_gene_mRNA_RHS=NULL;
+  delete o2_gene_mRNA_mat; o2_gene_mRNA_mat=nullptr;
+  delete o2_gene_mRNA_RHS; o2_gene_mRNA_RHS=nullptr;
   
   return *this;
 }
@@ -2985,8 +2985,8 @@ Analytic_engine& Analytic_engine::gene_protein_stationary_covariances() {
   
   o2_gene_prot = new arma::vec((*o2_gene_prot_mat).i()*(*o2_gene_prot_RHS));
 
-  delete o2_gene_prot_mat; o2_gene_prot_mat=NULL;
-  delete o2_gene_prot_RHS; o2_gene_prot_RHS=NULL;
+  delete o2_gene_prot_mat; o2_gene_prot_mat=nullptr;
+  delete o2_gene_prot_RHS; o2_gene_prot_RHS=nullptr;
 
   return *this;
 }
@@ -3059,8 +3059,8 @@ Analytic_engine& Analytic_engine::mRNA_mRNA_stationary_covariances() {
   
   o2_mRNA_mRNA = new arma::vec((*o2_mRNA_mRNA_mat).i()*(*o2_mRNA_mRNA_RHS));
 
-  delete o2_mRNA_mRNA_mat; o2_mRNA_mRNA_mat=NULL;
-  delete o2_mRNA_mRNA_RHS; o2_mRNA_mRNA_RHS=NULL;
+  delete o2_mRNA_mRNA_mat; o2_mRNA_mRNA_mat=nullptr;
+  delete o2_mRNA_mRNA_RHS; o2_mRNA_mRNA_RHS=nullptr;
 
   return *this;
 }
@@ -3160,8 +3160,8 @@ Analytic_engine& Analytic_engine::mRNA_protein_stationary_covariances() {
   
   o2_mRNA_prot = new arma::vec((*o2_mRNA_prot_mat).i()*(*o2_mRNA_prot_RHS));
 
-  delete o2_mRNA_prot_mat; o2_mRNA_prot_mat=NULL;
-  delete o2_mRNA_prot_RHS; o2_mRNA_prot_RHS=NULL;
+  delete o2_mRNA_prot_mat; o2_mRNA_prot_mat=nullptr;
+  delete o2_mRNA_prot_RHS; o2_mRNA_prot_RHS=nullptr;
 
   return *this;
 }
@@ -3257,8 +3257,8 @@ Analytic_engine& Analytic_engine::protein_protein_stationary_covariances() {
   
   o2_prot_prot = new arma::vec((*o2_prot_prot_mat).i()*(*o2_prot_prot_RHS));
 
-  delete o2_prot_prot_mat; o2_prot_prot_mat=NULL;
-  delete o2_prot_prot_RHS; o2_prot_prot_RHS=NULL;
+  delete o2_prot_prot_mat; o2_prot_prot_mat=nullptr;
+  delete o2_prot_prot_RHS; o2_prot_prot_RHS=nullptr;
 
   return *this;
 }
@@ -3286,8 +3286,8 @@ Analytic_engine& Analytic_engine::protein_protein_stationary_covariances(std::of
 
   std::cerr << "protein_protein_covariances:\n" << *o2_prot_prot << std::endl;
 
-  delete o2_prot_prot_mat; o2_prot_prot_mat=NULL;
-  delete o2_prot_prot_RHS; o2_prot_prot_RHS=NULL;
+  delete o2_prot_prot_mat; o2_prot_prot_mat=nullptr;
+  delete o2_prot_prot_RHS; o2_prot_prot_RHS=nullptr;
 
   //////////// COMPUTING VARIANCES and PCCs //////////
   std::cout << "Protein means and standard deviations:\n";
@@ -3571,11 +3571,11 @@ double Analytic_engine::protein_protein_correlation(const Compartment& comp1, co
 Analytic_engine& Analytic_engine::clear_o1_mat_and_RHS() {
   if(p_o1_mat) {
     delete p_o1_mat;
-    p_o1_mat = NULL;
+    p_o1_mat = nullptr;
   }
   if(p_o1_RHS) {
     delete p_o1_RHS;
-    p_o1_RHS = NULL;
+    p_o1_RHS = nullptr;
   }
   return *this;
 }
@@ -3583,15 +3583,15 @@ Analytic_engine& Analytic_engine::clear_o1_mat_and_RHS() {
 Analytic_engine& Analytic_engine::clear_As_and_bs() {
   if(p_Ap) {
     delete p_Ap;
-    p_Ap = NULL;
+    p_Ap = nullptr;
   }
   if(p_Am) {
     delete p_Am;
-    p_Am = NULL;
+    p_Am = nullptr;
   }
   if(p_b) {
     delete p_b;
-    p_b = NULL;
+    p_b = nullptr;
   }
   return *this;
 }
@@ -3599,11 +3599,11 @@ Analytic_engine& Analytic_engine::clear_As_and_bs() {
 Analytic_engine& Analytic_engine::clear_mRNA_As() {
   if(p_mRNA_Ap) {
     delete p_mRNA_Ap;
-    p_mRNA_Ap = NULL;
+    p_mRNA_Ap = nullptr;
   }
   if(p_mRNA_Am) {
     delete p_mRNA_Am;
-    p_mRNA_Am = NULL;
+    p_mRNA_Am = nullptr;
   }
   return *this;
 }
@@ -3611,15 +3611,15 @@ Analytic_engine& Analytic_engine::clear_mRNA_As() {
 Analytic_engine& Analytic_engine::clear_prot_As() {
   if(p_prot_Ap) {
     delete p_prot_Ap;
-    p_prot_Ap = NULL;
+    p_prot_Ap = nullptr;
   }
   if(p_prot_Am) {
     delete p_prot_Am;
-    p_prot_Am = NULL;
+    p_prot_Am = nullptr;
   }
   if(p_PM) {
     delete p_PM;
-    p_PM = NULL;
+    p_PM = nullptr;
   }
   return *this;
 }
@@ -3627,7 +3627,7 @@ Analytic_engine& Analytic_engine::clear_prot_As() {
 Analytic_engine& Analytic_engine::clear_hopping_rate_matrix() {
   if(p_H) {
     delete p_H;
-    p_H = NULL;
+    p_H = nullptr;
   }
   return *this;
 }
@@ -3635,7 +3635,7 @@ Analytic_engine& Analytic_engine::clear_hopping_rate_matrix() {
 Analytic_engine& Analytic_engine::clear_mRNA_hopping_rate_matrix() {
   if(p_mRNA_H) {
     delete p_mRNA_H;
-    p_mRNA_H = NULL;
+    p_mRNA_H = nullptr;
   }
   return *this;
 }
@@ -3643,7 +3643,7 @@ Analytic_engine& Analytic_engine::clear_mRNA_hopping_rate_matrix() {
 Analytic_engine& Analytic_engine::clear_prot_hopping_rate_matrix() {
   if(p_prot_H) {
     delete p_prot_H;
-    p_prot_H = NULL;
+    p_prot_H = nullptr;
   }
   return *this;
 }
@@ -3661,33 +3661,33 @@ Analytic_engine& Analytic_engine::clear_o1() {
 }
 
 Analytic_engine& Analytic_engine::clear_o2_mat_and_RHS() {
-  if(p_o2_mat) {delete p_o2_mat; p_o2_mat = NULL;}
-  if(p_o2_RHS) {delete p_o2_RHS; p_o2_RHS = NULL;}
+  if(p_o2_mat) {delete p_o2_mat; p_o2_mat = nullptr;}
+  if(p_o2_RHS) {delete p_o2_RHS; p_o2_RHS = nullptr;}
 
   return *this;
 }
 
 Analytic_engine& Analytic_engine::clear_o2() {
   clear_o2_mat_and_RHS();
-  if(p_o2_var_names) { delete p_o2_var_names; p_o2_var_names = NULL;}
-  if(p_covariances) {delete p_covariances; p_covariances=NULL;}
-  if(p_cov_mat) {delete p_cov_mat; p_cov_mat=NULL;}
-  if(p_mRNA_mRNA_cov_mat) {delete p_mRNA_mRNA_cov_mat; p_mRNA_mRNA_cov_mat=NULL;}
-  if(p_prot_prot_cov_mat) {delete p_prot_prot_cov_mat; p_prot_prot_cov_mat=NULL;}
-  if(p_PM) {delete p_PM; p_PM=NULL;}
-  if(o2_gene_mRNA) {delete o2_gene_mRNA; o2_gene_mRNA=NULL;}
-  if(o2_gene_mRNA_RHS) {delete o2_gene_mRNA_RHS; o2_gene_mRNA_RHS=NULL;}
-  if(o2_gene_mRNA_mat) {delete o2_gene_mRNA_mat; o2_gene_mRNA_mat=NULL;}
-  if(o2_gene_prot) {delete o2_gene_prot; o2_gene_prot=NULL;}
-  if(o2_gene_prot_RHS) {delete o2_gene_prot_RHS; o2_gene_prot_RHS=NULL;}
-  if(o2_gene_prot_mat) {delete o2_gene_prot_mat; o2_gene_prot_mat=NULL;}
-  if(o2_mRNA_mRNA) {delete o2_mRNA_mRNA; o2_mRNA_mRNA=NULL;}
-  if(o2_mRNA_mRNA_RHS) {delete o2_mRNA_mRNA_RHS; o2_mRNA_mRNA_RHS=NULL;}
-  if(o2_mRNA_mRNA_mat) {delete o2_mRNA_mRNA_mat; o2_mRNA_mRNA_mat=NULL;}
-  if(o2_mRNA_prot) {delete o2_mRNA_prot; o2_mRNA_prot=NULL;}
-  if(o2_mRNA_prot_RHS) {delete o2_mRNA_prot_RHS; o2_mRNA_prot_RHS=NULL;}
-  if(o2_mRNA_prot_mat) {delete o2_mRNA_prot_mat; o2_mRNA_prot_mat=NULL;}
-  if(o2_nonstationary_RHS_mat) {delete o2_nonstationary_RHS_mat; o2_nonstationary_RHS_mat=NULL;}
+  if(p_o2_var_names) { delete p_o2_var_names; p_o2_var_names = nullptr;}
+  if(p_covariances) {delete p_covariances; p_covariances=nullptr;}
+  if(p_cov_mat) {delete p_cov_mat; p_cov_mat=nullptr;}
+  if(p_mRNA_mRNA_cov_mat) {delete p_mRNA_mRNA_cov_mat; p_mRNA_mRNA_cov_mat=nullptr;}
+  if(p_prot_prot_cov_mat) {delete p_prot_prot_cov_mat; p_prot_prot_cov_mat=nullptr;}
+  if(p_PM) {delete p_PM; p_PM=nullptr;}
+  if(o2_gene_mRNA) {delete o2_gene_mRNA; o2_gene_mRNA=nullptr;}
+  if(o2_gene_mRNA_RHS) {delete o2_gene_mRNA_RHS; o2_gene_mRNA_RHS=nullptr;}
+  if(o2_gene_mRNA_mat) {delete o2_gene_mRNA_mat; o2_gene_mRNA_mat=nullptr;}
+  if(o2_gene_prot) {delete o2_gene_prot; o2_gene_prot=nullptr;}
+  if(o2_gene_prot_RHS) {delete o2_gene_prot_RHS; o2_gene_prot_RHS=nullptr;}
+  if(o2_gene_prot_mat) {delete o2_gene_prot_mat; o2_gene_prot_mat=nullptr;}
+  if(o2_mRNA_mRNA) {delete o2_mRNA_mRNA; o2_mRNA_mRNA=nullptr;}
+  if(o2_mRNA_mRNA_RHS) {delete o2_mRNA_mRNA_RHS; o2_mRNA_mRNA_RHS=nullptr;}
+  if(o2_mRNA_mRNA_mat) {delete o2_mRNA_mRNA_mat; o2_mRNA_mRNA_mat=nullptr;}
+  if(o2_mRNA_prot) {delete o2_mRNA_prot; o2_mRNA_prot=nullptr;}
+  if(o2_mRNA_prot_RHS) {delete o2_mRNA_prot_RHS; o2_mRNA_prot_RHS=nullptr;}
+  if(o2_mRNA_prot_mat) {delete o2_mRNA_prot_mat; o2_mRNA_prot_mat=nullptr;}
+  if(o2_nonstationary_RHS_mat) {delete o2_nonstationary_RHS_mat; o2_nonstationary_RHS_mat=nullptr;}
 
   return *this;
 }

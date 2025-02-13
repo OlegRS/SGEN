@@ -40,7 +40,7 @@ protected:
   
   std::string name;
 
-  Soma* p_soma = NULL;
+  Soma* p_soma = nullptr;
   std::list<Compartment*> p_dend_segments;
   std::list<Compartment*> p_synapses;
   
