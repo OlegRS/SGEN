@@ -6,7 +6,7 @@
 namespace py = pybind11;
 
 void bind_Gillespie_engine(py::module& m) {
-    py::class_<Gillespie_engine>(m, "Gillespie_engine")
+    py::class_<Gillespie_engine>(m, "_Gillespie_engine")
       .def(py::init<Neuron&>(),
            py::arg("neuron"),
            "Initialise Gillespie Engine for a given neuron.")

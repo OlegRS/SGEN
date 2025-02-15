@@ -9,7 +9,7 @@ echo "Running from $(pwd)"
 cmake ..
 
 # cmake --build . --target optimised_moments
-cmake --build . --target SGEN_Py
+cmake --build . --target _SGEN_Py
 
 # sudo make install
 

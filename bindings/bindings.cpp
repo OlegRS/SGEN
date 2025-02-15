@@ -12,7 +12,7 @@ void bind_Analytic_engine(py::module&);
 void bind_Morphologic_engine(py::module&);
 void bind_Gillespie_engine(py::module&);
 
-PYBIND11_MODULE(SGEN_Py, m) {
+PYBIND11_MODULE(_SGEN_Py, m) {
     m.doc() = "Python bindings for the Stochastic Gene Expression in Neurons (SGEN) library";
 
     // Bind components

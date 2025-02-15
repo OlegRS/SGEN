@@ -43,3 +43,7 @@ build*
 *.csv
 *.dat
 data/*
+
+
+# tests
+python_examples/test.py

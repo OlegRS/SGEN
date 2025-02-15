@@ -172,9 +172,6 @@ public:
     p_cov_mat = cov_mat_init ? new arma::mat(o1_dim, o1_dim) : nullptr;
   }
   
-  std::string master_equation() const; // Not implemented
-  std::string generating_function_PDE() const; // Not implemented
-
   Analytic_engine& initialize();
 
   size_t o2_dimension() {return o2_dim;};
@@ -197,6 +194,7 @@ public:
   Analytic_engine& sem_stationary_covariances(); // Semantically grouped stationary covariances
   Analytic_engine& sem_stationary_pearson_correlations();
 
+  double stationary_gene_gene_covariance() {return o2_gene_gene + p_neuron->p_soma->n_active_genes_expectation;}
   Analytic_engine& gene_mRNA_stationary_covariances();
   std::vector<double> stationary_gene_mRNA_covariances();  // For Python bindings
   Analytic_engine& gene_protein_stationary_covariances();
@@ -240,6 +238,9 @@ public:
 
   Analytic_engine& sem_stationary_time_correlations(const std::list<double>& times);
 
+  std::vector<std::string>& o1_mRNA_var_names() {return o1_mRNA_names;}
+  std::vector<std::string>& o1_prot_var_names() {return o1_prot_names;}
+  
   double active_genes_expectation();
   double mRNA_expectation(const Compartment&);
   double protein_expectation(const Compartment&);

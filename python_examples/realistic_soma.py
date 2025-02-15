@@ -123,7 +123,7 @@ s_12_2 = sg.Spine(parent=secondary_branch_2[int(2*N_dendritic_segments/3)],
                   length=10,
                   radius=1)
 
-neuron = sg.Neuron(soma, "Test_neuron")
+neuron = sg._Neuron(soma, "Test_neuron")
 
 ae = sg.Analytic_engine(neuron)
 print("Computing mRNA expectations...")
