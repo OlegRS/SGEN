@@ -16,6 +16,7 @@ class Neuron:
     ### Stationary expectations
     def active_gene_expectation(self):
         return self._analytic_engine.active_genes_expectation()
+    
     def mRNA_expectations(self, dict_return=False):
         mRNA_expectations = self._analytic_engine.stationary_mRNA_expectations()
         if dict_return:
@@ -31,38 +32,39 @@ class Neuron:
             return np.array(prot_expectations)
 
     def expected_counts(self, dict_return=False):
+        self._analytic_engine = _sg._Analytic_engine(self._neuron) # DEBUG (Temporary fix)
         return {'gene': self.active_gene_expectation(),
                 'mRNA': self.mRNA_expectations(dict_return=dict_return),
                 'prot': self.protein_expectations(dict_return=dict_return)}
 
 
     ### Stationary covariances (memory intense)
-    def gene_gene_covariance(self):
-        print('Computing gene-gene covariances...')
+    def gene_gene_correlation(self):
+        print('Computing gene-gene correlations...')
         return self._analytic_engine.stationary_gene_gene_covariance()
-    def gene_mRNA_covariances(self):
-        print('Computing gene-mRNA covariances...')
+    def gene_mRNA_correlations(self):
+        print('Computing gene-mRNA correlations...')
         return np.array(self._analytic_engine.stationary_gene_mRNA_covariances())
-    def mRNA_mRNA_covariances(self):
-        print('Computing mRNA-mRNA covariances...')
+    def mRNA_mRNA_correlations(self):
+        print('Computing mRNA-mRNA correlations...')
         return np.array(self._analytic_engine.stationary_mRNA_mRNA_covariances())
-    def gene_protein_covariances(self):
-        print('Computing gene-protein covariances...')
+    def gene_protein_correlations(self):
+        print('Computing gene-protein correlations...')
         return np.array(self._analytic_engine.stationary_gene_protein_covariances())
-    def mRNA_protein_covariances(self):
-        print('Computing mRNA-protein covariances...')
+    def mRNA_protein_correlations(self):
+        print('Computing mRNA-protein correlations...')
         return np.array(self._analytic_engine.stationary_mRNA_protein_covariances())
-    def protein_protein_covariances(self):
-        print('Computing protein-protein covariances...')
+    def protein_protein_correlations(self):
+        print('Computing protein-protein correlations...')
         return np.array(self._analytic_engine.stationary_protein_protein_covariances())
 
-    def covariances(self):
-        return {'gene-gene': self.gene_gene_covariance(),
-                'gene-mRNA': self.gene_mRNA_covariances(),
-                'mRNA-mRNA': self.mRNA_mRNA_covariances(),
-                'gene-prot': self.gene_protein_covariances(),
-                'mRNA-prot': self.mRNA_protein_covariances(),
-                'prot-prot': self.protein_protein_covariances()}
+    def correlations(self):
+        return {'gene-gene': self.gene_gene_correlation(),
+                'gene-mRNA': self.gene_mRNA_correlations(),
+                'mRNA-mRNA': self.mRNA_mRNA_correlations(),
+                'gene-prot': self.gene_protein_correlations(),
+                'mRNA-prot': self.mRNA_protein_correlations(),
+                'prot-prot': self.protein_protein_correlations()}
 
     def expectations_and_correlations(self):
         return np.array(self._analytic_engine.stationary_expectations_and_correlations())

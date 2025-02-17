@@ -1,5 +1,4 @@
 *\#*
-_*
 ._*
 *.bbl
 *.ilg
@@ -47,3 +46,8 @@ data/*
 
 # tests
 python_examples/test.py
+
+# Jupyter notebook checkpoints
+*.ipynb_checkpoints*
+
+*__pycache__*
