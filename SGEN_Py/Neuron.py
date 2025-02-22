@@ -12,6 +12,14 @@ class Neuron:
         self._morphologic_engine = _sg._Morphologic_engine(self._neuron)
         self._gillespie_engine = _sg._Gillespie_engine(self._neuron)
 
+    def __init__(self, file_name, name='no_name'):
+        """Wrapper around the C++ Neuron class with additional plotting."""
+        self._neuron = _sg._Neuron(file_name, name)
+        self._analytic_engine = _sg._Analytic_engine(self._neuron)
+        self._morphologic_engine = _sg._Morphologic_engine(self._neuron)
+        self._gillespie_engine = _sg._Gillespie_engine(self._neuron)
+
+
     # Analytics
     ### Stationary expectations
     def active_gene_expectation(self):
@@ -69,10 +77,39 @@ class Neuron:
     def expectations_and_correlations(self):
         return np.array(self._analytic_engine.stationary_expectations_and_correlations())
 
+    def mRNA_mRNA_Pearson_correlation(self, comp1, comp2):
+        return (self._analytic_engine.mRNA_mRNA_correlation(comp1,comp2) - self._analytic_engine.mRNA_expectation(comp1)*self._analytic_engine.mRNA_expectation(comp2))/(np.sqrt(self._analytic_engine.mRNA_mRNA_correlation(comp1,comp1)-self._analytic_engine.mRNA_expectation(comp1)**2)*np.sqrt(self._analytic_engine.mRNA_mRNA_correlation(comp2,comp2)-self._analytic_engine.mRNA_expectation(comp2)**2))
+
+    def mRNA_prot_Pearson_correlation(self, comp1, comp2):
+        return (self._analytic_engine.mRNA_protein_correlation(comp1,comp2) - self._analytic_engine.mRNA_expectation(comp1)*self._analytic_engine.protein_expectation(comp2))/(np.sqrt(self._analytic_engine.mRNA_mRNA_correlation(comp1,comp1)-self._analytic_engine.mRNA_expectation(comp1)**2)*np.sqrt(self._analytic_engine.protein_protein_correlation(comp2,comp2)-self._analytic_engine.protein_expectation(comp2)**2))
+    
+    def prot_prot_Pearson_correlation(self, comp1, comp2):
+        return (self._analytic_engine.protein_protein_correlation(comp1,comp2) - self._analytic_engine.protein_expectation(comp1)*self._analytic_engine.protein_expectation(comp2))/(np.sqrt(self._analytic_engine.protein_protein_correlation(comp1,comp1)-self._analytic_engine.protein_expectation(comp1)**2)*np.sqrt(self._analytic_engine.protein_protein_correlation(comp2,comp2)-self._analytic_engine.protein_expectation(comp2)**2))
+
 
     # Simulation
-    def run_Gillespie(self, times, output_file_name, time_offset=0):
-        return np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name, time_offset))
+    def run_Gillespie(self, record_times, output_file_name='', n_avrg_trajectories=1, time_offset=0):
+        if n_avrg_trajectories < 1:
+            raise ValueError("ERROR in run_Gillespie: Number of trajectories should be greater than zero")
+        var_names = ['time'] + self._gillespie_engine.variable_names()
+        
+        print("Running Gillespie...")
+        if n_avrg_trajectories == 1:
+            var_values = np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name+'.csv', time_offset))
+            var_dict = {var_names[i]: var_values[:,i] for i in range(len(var_names))}
+        elif n_avrg_trajectories > 1:
+            if output_file_name == '':
+                var_values = np.array(self._gillespie_engine.run_Gillespie(record_times=record_times, time_offset=time_offset))[:,1:]/n_avrg_trajectories
+                for tn in range(1, n_avrg_trajectories):
+                    var_values += np.array(self._gillespie_engine.run_Gillespie(record_times=record_times, time_offset=time_offset))[:,1:]/n_avrg_trajectories
+            else:
+                var_values = np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name + '_1.csv', time_offset))[:,1:]/n_avrg_trajectories
+                for tn in range(2, n_avrg_trajectories+1):
+                    var_values += np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name + '_' + str(tn) + '.csv', time_offset))[:,1:]/n_avrg_trajectories
+
+            var_dict = {var_names[i]: var_values[:,i-1] for i in range(1,len(var_names))}
+            var_dict.update({'time': np.array(record_times) + time_offset})
+        return var_dict
 
 
     # Mrphology

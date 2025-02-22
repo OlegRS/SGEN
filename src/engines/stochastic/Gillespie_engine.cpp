@@ -179,59 +179,105 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times
   return *this;
 }
 
-Gillespie_engine& Gillespie_engine::run_Gillespie(const std::vector<double>& times, const std::string& file_name, const double& time_offset) {
+std::vector<std::vector<double>> Gillespie_engine::run_Gillespie(const std::vector<double>& times, const std::string& file_name, const double& time_offset) {
+  std::vector<std::vector<double>> results(times.size(), std::vector<double>(dim+1)); //+1 for time variable
+  
   for(auto it_times=times.begin(); it_times!=times.end()-1;) {
     if(*it_times < 0) {
-      std::cerr << "\n------------------------------------------------------\n"
+      std::cerr << "\n--------------------------------------------------------\n"
                 << "- ERROR in run_Gillespie: record_times should be positive!"
-                << "\n------------------------------------------------------\n";
-      return *this;
+                << "\n--------------------------------------------------------\n";
+      return results;
     }
     if(*it_times == *(it_times+1)) {
-      std::cerr << "\n------------------------------------------------------\n"
+      std::cerr << "\n------------------------------------------------------------\n"
                 << "- WARNING from run_Gillespie: there are repeated record_times!"
-                << "\n------------------------------------------------------\n";
-      return *this;
+                << "\n------------------------------------------------------------\n";
+      return results;
     }
     if(*it_times > *++it_times) {
-      std::cerr << "\n------------------------------------------------------\n"
+      std::cerr << "\n--------------------------------------------------------------------------\n"
                 << "- ERROR in run_Gillespie: record_times should be ordered in ascending order!"
-                << "\n------------------------------------------------------\n";
-      return *this;
+                << "\n--------------------------------------------------------------------------\n";
+      return results;
     }
   }
 
-      
-  std::cout << "Running Gillespie...\n";
-
-  std::ofstream ofs(file_name);
-
-  print_variable_names(ofs << "t,") << std::endl;
-  
   size_t n_jumps = 0;
-  double t = 0;
-  for(auto it_times=times.begin(); it_times!=times.end();) {
-    if(*it_times >= t) {
-      t += draw_delta_t();
-      while(it_times!=times.end() && *it_times <= t)
-        print_variables(ofs << time_offset + *it_times++ << ',') << std::endl;
+  
+  if(file_name.empty()) {
+    double t = 0;
+    for(size_t t_ind=0; t_ind < times.size(); ) {
+      if(times[t_ind] >= t) {
+        t += draw_delta_t();
+        while(t_ind != times.size() && times[t_ind] <= t) {
+          write_results(time_offset + times[t_ind], results[t_ind]);
+          ++t_ind;
+        }
 
-      if(it_times!=times.end()) {// This would rarely not be the case with high event rates
-        update_Gillespie();           
-        ++n_jumps;
+        if(t_ind != times.size()) {// This would rarely not be the case with high event rates
+          update_Gillespie();           
+          ++n_jumps;
+        }
+      }
+      else {// This should never happen. Keeping for debugging as it does not affect performance.
+        std::cerr << "\n----------------------------------------------------------------\n"
+                  << "- WARNING: Something weird just happened with Gillespie algorithm!"
+                  << "\n----------------------------------------------------------------\n";
+        ++t_ind;
       }
     }
-    else {// This should never happen. Keeping for debugging as it does not affect performance.
-      std::cerr << "\n------------------------------------------------------\n"
-                << "WARNING: Something weird just happened with Gillespie algorithm!"
-                << "\n------------------------------------------------------\n";
-      ++it_times;
-    }
   }
-  std::cout << "n_jumps = " << n_jumps << std::endl;
+  else {
+    std::ofstream ofs(file_name);
+    print_variable_names(ofs << "t,") << std::endl;
+    
+    double t = 0;
+    for(size_t t_ind=0; t_ind < times.size(); ) {
+      if(times[t_ind] >= t) {
+        t += draw_delta_t();
+        while(t_ind != times.size() && times[t_ind] <= t) {
+          print_variables(ofs << time_offset + times[t_ind] << ',') << std::endl;
+          write_results(time_offset + times[t_ind], results[t_ind]);
+          ++t_ind;
+        }
 
-  ofs.close();
-  return *this;
+        if(t_ind != times.size()) {// This would rarely not be the case with high event rates
+          update_Gillespie();           
+          ++n_jumps;
+        }
+      }
+      else {// This should never happen. Keeping for debugging as it does not affect performance.
+        std::cerr << "\n----------------------------------------------------------------\n"
+                  << "- WARNING: Something weird just happened with Gillespie algorithm!"
+                  << "\n----------------------------------------------------------------\n";
+        ++t_ind;
+      }
+    }
+    ofs.close();
+  }
+
+  std::cout << "n_jumps = " << n_jumps << std::endl;
+  
+  return results;
+}
+
+inline void Gillespie_engine::write_results(const double& time, std::vector<double> &results) {
+  
+  results[0] = time;
+  results[1] = p_neuron->p_soma->n_active_genes;
+  results[2] = p_neuron->p_soma->n_mRNAs;
+  results[3] = p_neuron->p_soma->n_proteins;
+
+  size_t i=4;
+
+  for(auto& p_ds : p_neuron->p_dend_segments) {
+    results[i++] = p_ds->n_mRNAs;
+    results[i++] = p_ds->n_proteins;
+  }
+  
+  for(auto& p_s : p_neuron->p_synapses)
+    results[i++] = p_s->n_proteins;
 }
 
 inline std::ostream& Gillespie_engine::print_variables(std::ostream& os) {
@@ -252,4 +298,26 @@ inline std::ostream& Gillespie_engine::print_variable_names(std::ostream& os) {
     os << ',' << p_s->name + "_Prot";
   
   return os;
+}
+
+std::vector<std::string> Gillespie_engine::variable_names() {
+
+  std::vector<std::string> var_names(dim);
+
+  var_names[0] = p_neuron->p_soma->name + "_gene";
+  var_names[1] = p_neuron->p_soma->name + "_mRNA";
+  var_names[2] = p_neuron->p_soma->name + "_prot";
+
+  size_t i=3;
+
+  for(auto& p_ds : p_neuron->p_dend_segments) {
+    var_names[i++] = p_ds->name + "_mRNA";
+    var_names[i++] = p_ds->name + "_prot";
+  }
+  
+  for(auto& p_s : p_neuron->p_synapses)
+    var_names[i++] = p_s->name + "_prot";
+
+  
+  return var_names;
 }

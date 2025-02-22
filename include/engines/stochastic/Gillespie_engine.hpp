@@ -22,6 +22,7 @@ class Gillespie_engine {
   std::unique_ptr<PRNG> owned_prng;
   PRNG& rnd;
 
+  inline void write_results(const double& time, std::vector<double> &results);
   inline std::ostream& print_variables(std::ostream&);
   inline std::ostream& print_variable_names(std::ostream&);
   
@@ -54,7 +55,10 @@ public:
 
   Gillespie_engine& run_Gillespie(const double& time);
   Gillespie_engine& run_Gillespie(const std::list<double>& write_times, std::ostream&, const double& time_offset=0);
-  Gillespie_engine& run_Gillespie(const std::vector<double>& write_times, const std::string& file_name, const double& time_offset=0);
+  std::vector<std::vector<double>> run_Gillespie(const std::vector<double>& write_times, const std::string& file_name="", const double& time_offset=0);
+
+  std::vector<std::string> variable_names();
+  
 };
 
 #endif

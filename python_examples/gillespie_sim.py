@@ -1,10 +1,11 @@
 import sys
-sys.path.append('../build')
+sys.path.append('../')
 
 import SGEN_Py as sg
-
 import pyvista as pv
 import numpy as np
+
+import matplotlib.pyplot as plt
 
 Dendrite_length = 200 #um
 N_dendritic_segments = 15
@@ -72,7 +73,8 @@ s_12_2 = sg.Spine(parent=secondary_branch_2[int(2*N_dendritic_segments/3)],
 
 neuron = sg.Neuron(soma, "Test_neuron")
 
-ge = sg.Gillespie_engine(neuron) # Initialise Gillespie_engine for a given neuron 
-# Run Gillespie algorithm for 100 hours recording every hour to test_Gillespie_out.csv.
-# time_offset=-10 tells that the algorithm starts at t=-10 (useful for plotting sometimes)
-ge.run_Gillespie(record_times=range(100), file_name="test_Gillespie_out.csv", time_offset=-10)
+sim_results = neuron.run_Gillespie(record_times=np.arange(0,100,5), time_offset=-10, n_avrg_trajectories=1, output_file_name='test_Gillespie')
+
+plt.plot(sim_results['time'], sim_results['s_1_1_prot'])
+
+plt.show()
