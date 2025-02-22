@@ -45,6 +45,12 @@ class Neuron:
                 'mRNA': self.mRNA_expectations(dict_return=dict_return),
                 'prot': self.protein_expectations(dict_return=dict_return)}
 
+    def mRNA_time_scales(self):
+        return 1/np.array(self._analytic_engine.mRNA_o1_eigenvalues())
+
+    def protein_time_scales(self):
+        return 1/np.array(self._analytic_engine.protein_o1_eigenvalues())
+
 
     ### Stationary covariances (memory intense)
     def gene_gene_correlation(self):
@@ -82,34 +88,57 @@ class Neuron:
 
     def mRNA_prot_Pearson_correlation(self, comp1, comp2):
         return (self._analytic_engine.mRNA_protein_correlation(comp1,comp2) - self._analytic_engine.mRNA_expectation(comp1)*self._analytic_engine.protein_expectation(comp2))/(np.sqrt(self._analytic_engine.mRNA_mRNA_correlation(comp1,comp1)-self._analytic_engine.mRNA_expectation(comp1)**2)*np.sqrt(self._analytic_engine.protein_protein_correlation(comp2,comp2)-self._analytic_engine.protein_expectation(comp2)**2))
+
+    def prot_prot_covariance(self, comp1, comp2):
+        return self._analytic_engine.protein_protein_correlation(comp1,comp2) - self._analytic_engine.protein_expectation(comp1)*self._analytic_engine.protein_expectation(comp2)
+
     
     def prot_prot_Pearson_correlation(self, comp1, comp2):
-        return (self._analytic_engine.protein_protein_correlation(comp1,comp2) - self._analytic_engine.protein_expectation(comp1)*self._analytic_engine.protein_expectation(comp2))/(np.sqrt(self._analytic_engine.protein_protein_correlation(comp1,comp1)-self._analytic_engine.protein_expectation(comp1)**2)*np.sqrt(self._analytic_engine.protein_protein_correlation(comp2,comp2)-self._analytic_engine.protein_expectation(comp2)**2))
+        return self.prot_prot_covariance(comp1, comp2)/(np.sqrt(self._analytic_engine.protein_protein_correlation(comp1,comp1)-self._analytic_engine.protein_expectation(comp1)**2)*np.sqrt(self._analytic_engine.protein_protein_correlation(comp2,comp2)-self._analytic_engine.protein_expectation(comp2)**2))
+
+        
+    def protein_variance(self, comp):
+        return self._analytic_engine.protein_protein_correlation(comp, comp) - self._analytic_engine.protein_expectation(comp)**2
+
+    def protein_standard_deviation(self, comp):
+        return np.sqrt(self._analytic_engine.protein_protein_correlation(comp, comp) - self._analytic_engine.protein_expectation(comp)**2)
 
 
     # Simulation
-    def run_Gillespie(self, record_times, output_file_name='', n_avrg_trajectories=1, time_offset=0):
+    def Gillespie_sim(self, record_times, output_file_name='', n_avrg_trajectories=1, burn_in=0):
         if n_avrg_trajectories < 1:
             raise ValueError("ERROR in run_Gillespie: Number of trajectories should be greater than zero")
         var_names = ['time'] + self._gillespie_engine.variable_names()
         
         print("Running Gillespie...")
         if n_avrg_trajectories == 1:
-            var_values = np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name+'.csv', time_offset))
+            var_values = np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name+'.csv', burn_in))
             var_dict = {var_names[i]: var_values[:,i] for i in range(len(var_names))}
         elif n_avrg_trajectories > 1:
             if output_file_name == '':
-                var_values = np.array(self._gillespie_engine.run_Gillespie(record_times=record_times, time_offset=time_offset))[:,1:]/n_avrg_trajectories
+                var_values = np.array(self._gillespie_engine.run_Gillespie(record_times=record_times, burn_in=burn_in))[:,1:]/n_avrg_trajectories
                 for tn in range(1, n_avrg_trajectories):
-                    var_values += np.array(self._gillespie_engine.run_Gillespie(record_times=record_times, time_offset=time_offset))[:,1:]/n_avrg_trajectories
+                    var_values += np.array(self._gillespie_engine.run_Gillespie(record_times=record_times, burn_in=burn_in))[:,1:]/n_avrg_trajectories
             else:
-                var_values = np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name + '_1.csv', time_offset))[:,1:]/n_avrg_trajectories
+                var_values = np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name + '_1.csv', burn_in))[:,1:]/n_avrg_trajectories
                 for tn in range(2, n_avrg_trajectories+1):
-                    var_values += np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name + '_' + str(tn) + '.csv', time_offset))[:,1:]/n_avrg_trajectories
+                    var_values += np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name + '_' + str(tn) + '.csv', burn_in))[:,1:]/n_avrg_trajectories
 
             var_dict = {var_names[i]: var_values[:,i-1] for i in range(1,len(var_names))}
-            var_dict.update({'time': np.array(record_times) + time_offset})
+            var_dict.update({'time': np.array(record_times)})
         return var_dict
+
+    def stationary_Gillespie_sim(self, record_times, output_file_name='', n_avrg_trajectories=1, burn_in_factor=5):
+        gene_timescale = max(1/self.soma().gene_activation_rate(), 1/self.soma().gene_deactivation_rate())
+        burn_in = burn_in_factor*max(gene_timescale, max(self.mRNA_time_scales()), max(self.protein_time_scales()))
+        print("Gillespie burn-in time: ", burn_in)
+        return self.run_Gillespie(record_times, output_file_name, n_avrg_trajectories, burn_in)
+    
+    def load_Gillespie_sim(self, file_name):
+        with open(file_name, "r") as f:
+            var_names = f.readline().strip().split(",")  # Read and split header
+            var_values = np.loadtxt(f, delimiter=",", dtype=float)  # Load numeric data
+        return {var_names[i]: var_values[:,i] for i in range(len(var_names))}
 
 
     # Mrphology
@@ -118,6 +147,9 @@ class Neuron:
     
     def volumes(self):
         return np.array(_sg._Morphologic_engine(self._neuron).volumes())
+
+    def soma(self):
+        return self._neuron.soma()
 
 
     # Plotting 

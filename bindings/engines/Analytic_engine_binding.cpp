@@ -33,7 +33,7 @@ void bind_Analytic_engine(py::module& m) {
            "Compute stationary correlations (<p*p>) of active protein counts with protein counts using matrix inversion.\n!!! THIS CAN ONLY BE CALLED WHEN mRNA EXPECTATIONS and gene-mRNA CORRELATIONS ARE COMPUTED, SO CALL stationary_mRNA_expectations() and stationary_gene_mRNA_covariances() FIRST !!!")
       .def("o1_mRNA_names", &Analytic_engine::o1_mRNA_var_names,
            "Return ordered names of compartments for mRNA computation")
-      .def("o1_prot_names", &Analytic_engine::o1_mRNA_var_names,
+      .def("o1_prot_names", &Analytic_engine::o1_prot_var_names,
            "Return ordered names of compartments for protein computation")
       .def("active_genes_expectation", &Analytic_engine::active_genes_expectation,
            "Return expected number of active gene copies")
@@ -58,6 +58,10 @@ void bind_Analytic_engine(py::module& m) {
       .def("protein_protein_correlation", &Analytic_engine::protein_protein_correlation,
            py::arg("compartment"), py::arg("compartment"),
            "Return protein-protein correlation <n_prot*n_prot>")
+      .def("mRNA_o1_eigenvalues", &Analytic_engine::mRNA_o1_eigenvalues,
+           "Return eigenvalues of the matrix of mRNA expected counts' dynamics.")
+      .def("protein_o1_eigenvalues", &Analytic_engine::protein_o1_eigenvalues,
+           "Return eigenvalues of the matrix of protein expected counts' dynamics.")
       .def("clear", &Analytic_engine::clear_all,
            "Clears all matrices used in computation of moments. Computational functions would rebuild these matrices.");
 }

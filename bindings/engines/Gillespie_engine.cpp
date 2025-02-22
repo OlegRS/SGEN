@@ -11,7 +11,7 @@ void bind_Gillespie_engine(py::module& m) {
            py::arg("neuron"),
            "Initialise Gillespie Engine for a given neuron.")
       .def("run_Gillespie", py::overload_cast<const std::vector<double>&, const std::string&, const double&>(&Gillespie_engine::run_Gillespie),
-           py::arg("record_times"), py::arg("file_name")="Gillespie_out.csv", py::arg("time_offset")=0,
+           py::arg("record_times"), py::arg("file_name")="Gillespie_out.csv", py::arg("burn_in")=0,
            "Run Gillespie algorithm writing at record_times to file_name with offset time_offset")
       .def("variable_names", &Gillespie_engine::variable_names,
            "Return ordered array of variable names");

@@ -86,6 +86,37 @@ Analytic_engine& Analytic_engine::mRNA_o1_eigen_decomposition() {
   return *this;
 }
 
+std::vector<double> Analytic_engine::mRNA_o1_eigenvalues() {
+
+  size_t mRNA_dim = 1+p_neuron->p_dend_segments.size();
+  std::vector<double> eigvals(mRNA_dim);
+  
+  arma::cx_vec eigval_c;
+  arma::cx_mat eigvec_c;
+  arma::eig_gen(eigval_c, eigvec_c, o1_mRNA_matrix);
+
+  for(size_t i=0; i<mRNA_dim; ++i)
+    eigvals[i] = -eigval_c(i).real();
+
+  return eigvals;
+}
+
+std::vector<double> Analytic_engine::protein_o1_eigenvalues() {
+
+  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
+  std::vector<double> eigvals(prot_dim);
+  
+  arma::cx_vec eigval_c;
+  arma::cx_mat eigvec_c;
+  arma::eig_gen(eigval_c, eigvec_c, o1_prot_matrix);
+
+  for(size_t i=0; i<prot_dim; ++i)
+    eigvals[i] = -eigval_c(i).real();
+
+  return eigvals;
+}
+
+
 Analytic_engine& Analytic_engine::internalise_mRNA_expectations() {
   size_t mRNA_size = 1 + p_neuron->p_dend_segments.size();
   for(size_t i=0; i<mRNA_size; ++i)

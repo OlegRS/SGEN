@@ -73,8 +73,27 @@ s_12_2 = sg.Spine(parent=secondary_branch_2[int(2*N_dendritic_segments/3)],
 
 neuron = sg.Neuron(soma, "Test_neuron")
 
-sim_results = neuron.run_Gillespie(record_times=np.arange(0,100,5), time_offset=-10, n_avrg_trajectories=1, output_file_name='test_Gillespie')
+# Computing expectations and correlations
+expectations = neuron.expected_counts(dict_return=True)
+correlations = neuron.correlations()
 
-plt.plot(sim_results['time'], sim_results['s_1_1_prot'])
+# sim_results = neuron.stationary_Gillespie_sim(record_times=range(0,3000,1), output_file_name='test_Gillespie')
 
+sim_results = neuron.load_Gillespie_sim(file_name='test_Gillespie.csv')
+
+# Define compartment to plot for
+compartment = s_12_2
+
+plt.plot(sim_results['time'], sim_results[compartment.name() + '_prot'], color='blue', label='Gillespie trajectory')
+plt.axhline(expectations['prot'][compartment.name()], color='cyan', alpha=.7, linewidth=2, label='Stationary expectation')
+
+# Plotting stationary standard deviation
+std = neuron.standard_deviation(compartment)
+plt.axhline(expectations['prot'][compartment.name()] + std, color='cyan', alpha=.7, linewidth=2, label='Stationary expectation' + r'$\pm\sigma$', linestyle='--')
+plt.axhline(expectations['prot'][compartment.name()] - std, color='cyan', alpha=.7, linewidth=2, linestyle='--')
+
+plt.xlabel('Time in hours')
+plt.ylabel('Protein count')
+
+plt.legend()
 plt.show()

@@ -143,7 +143,7 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const double& time) {
 
 Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times, std::ostream& os, const double& time_offset) {
   std::cout << "Running Gillespie...\n";
-  size_t n_jumps = 0;
+  size_t event_count = 0;
   
   double t = 0;
   double time_written;
@@ -161,7 +161,7 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times
       }
       update_Gillespie();
            
-      n_jumps++;
+      ++event_count;
     }
     else {
       if(time_written != *it_times) {
@@ -175,11 +175,11 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times
       ++it_times;
     }
   }
-  std::cout << "n_jumps = " << n_jumps << std::endl;
+  std::cout << "Number of events: " << event_count << std::endl;
   return *this;
 }
 
-std::vector<std::vector<double>> Gillespie_engine::run_Gillespie(const std::vector<double>& times, const std::string& file_name, const double& time_offset) {
+std::vector<std::vector<double>> Gillespie_engine::run_Gillespie(const std::vector<double>& times, const std::string& file_name, const double& burn_in) {
   std::vector<std::vector<double>> results(times.size(), std::vector<double>(dim+1)); //+1 for time variable
   
   for(auto it_times=times.begin(); it_times!=times.end()-1;) {
@@ -203,21 +203,30 @@ std::vector<std::vector<double>> Gillespie_engine::run_Gillespie(const std::vect
     }
   }
 
-  size_t n_jumps = 0;
+  size_t event_count = 0;
+  double t = 0;
+  while(t < burn_in) {
+    t += draw_delta_t();
+    update_Gillespie();
+    ++event_count;
+  }
+  std::cout << "Number of burn-in events: " << event_count << std::endl;
+
+  event_count = 0;
+  t = 0;
   
   if(file_name.empty()) {
-    double t = 0;
     for(size_t t_ind=0; t_ind < times.size(); ) {
       if(times[t_ind] >= t) {
         t += draw_delta_t();
         while(t_ind != times.size() && times[t_ind] <= t) {
-          write_results(time_offset + times[t_ind], results[t_ind]);
+          write_results(times[t_ind], results[t_ind]);
           ++t_ind;
         }
 
         if(t_ind != times.size()) {// This would rarely not be the case with high event rates
           update_Gillespie();           
-          ++n_jumps;
+          ++event_count;
         }
       }
       else {// This should never happen. Keeping for debugging as it does not affect performance.
@@ -230,21 +239,20 @@ std::vector<std::vector<double>> Gillespie_engine::run_Gillespie(const std::vect
   }
   else {
     std::ofstream ofs(file_name);
-    print_variable_names(ofs << "t,") << std::endl;
+    print_variable_names(ofs << "time,") << std::endl;
     
-    double t = 0;
     for(size_t t_ind=0; t_ind < times.size(); ) {
       if(times[t_ind] >= t) {
         t += draw_delta_t();
         while(t_ind != times.size() && times[t_ind] <= t) {
-          print_variables(ofs << time_offset + times[t_ind] << ',') << std::endl;
-          write_results(time_offset + times[t_ind], results[t_ind]);
+          print_variables(ofs << times[t_ind] << ',') << std::endl;
+          write_results(times[t_ind], results[t_ind]);
           ++t_ind;
         }
 
         if(t_ind != times.size()) {// This would rarely not be the case with high event rates
           update_Gillespie();           
-          ++n_jumps;
+          ++event_count;
         }
       }
       else {// This should never happen. Keeping for debugging as it does not affect performance.
@@ -257,7 +265,7 @@ std::vector<std::vector<double>> Gillespie_engine::run_Gillespie(const std::vect
     ofs.close();
   }
 
-  std::cout << "n_jumps = " << n_jumps << std::endl;
+  std::cout << "Number of events after burn-in: " << event_count << std::endl;
   
   return results;
 }
@@ -291,11 +299,13 @@ inline std::ostream& Gillespie_engine::print_variables(std::ostream& os) {
 }
 
 inline std::ostream& Gillespie_engine::print_variable_names(std::ostream& os) {
-  os << "Soma_AG," << "Soma_mRNA,"<< "Soma_Prot";
+  const Soma &soma = *p_neuron->p_soma;
+  os << soma.name << "_gene," << soma.name << "_mRNA,"<< soma.name << "_prot";
+  
   for(auto& p_ds : p_neuron->p_dend_segments)
-    os << ',' << p_ds->name + "_mRNA," << p_ds->name+"_Prot";
+    os << ',' << p_ds->name << "_mRNA," << p_ds->name << "_prot";
   for(auto& p_s : p_neuron->p_synapses)
-    os << ',' << p_s->name + "_Prot";
+    os << ',' << p_s->name << "_prot";
   
   return os;
 }
@@ -317,7 +327,6 @@ std::vector<std::string> Gillespie_engine::variable_names() {
   
   for(auto& p_s : p_neuron->p_synapses)
     var_names[i++] = p_s->name + "_prot";
-
   
   return var_names;
 }

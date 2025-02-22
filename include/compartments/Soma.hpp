@@ -46,6 +46,9 @@ public:
   Soma& set_number_of_gene_copies(const unsigned int& N) {number_of_gene_copies = N; return *this;}
   Compartment& set_transcription_rate(const double& rate) {transcription_rate=rate; return *this;}
 
+  double get_gene_activation_rate() const {return gene_activation_rate;}
+  double get_gene_deactivation_rate() const {return gene_deactivation_rate;}
+
   double get_transcription_rate() {return transcription_rate;}
   
   Compartment::Type type() const {return SOMA;}
