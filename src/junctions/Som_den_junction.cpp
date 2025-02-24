@@ -5,8 +5,8 @@
 Junction& Neuron::Som_den_junction::set_hopping_rate_constants() {
 
   double
-    diffusion_scaling_factor = ( 1/((p_from->length)*(p_from->length)) + 1/((p_to->length)*(p_to->length)) )/2,
-    trafficking_scaling_factor = ( 1/(p_from->length) + 1/(p_to->length) )/2;
+    diffusion_scaling_factor = ( 1/((p_from->length)*(p_from->length)) + 1/((p_to->length)*(p_to->length)) )/2.,
+    trafficking_scaling_factor = ( 1/(p_from->length) + 1/(p_to->length) )/2.;
 
   double
     mRNA_fwd_diff_rate = p_from->mRNA_diffusion_constant * 3600 * diffusion_scaling_factor,

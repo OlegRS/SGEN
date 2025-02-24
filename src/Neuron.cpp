@@ -94,24 +94,10 @@ Neuron& Neuron::refresh() {
   return *this;
 }
 
-Soma& Neuron::soma() {
-  if(!p_soma) {
-    std::cerr << "-----------------------------------------------\n"
-              << "- ERROR: Soma of uninitialised neuron requested\n"
-              << "-----------------------------------------------\n";
-    exit(1);
-  }
-
-  return *p_soma;
-}
-
 Neuron::Neuron(Soma &soma, const std::string &name) : name(name) {
   p_soma = &soma;
   associate(static_cast<Compartment&>(soma));
 }
-
-
-
 
 Neuron::Neuron(const std::string& file_name, const std::string& name) : name(name) {
     constexpr size_t OFFSET = 2;  // Lines to skip in the SWC file

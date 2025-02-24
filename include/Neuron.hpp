@@ -61,7 +61,7 @@ public:
 
   Neuron& refresh();
 
-  Soma& soma();
+  Soma& soma() { return *p_soma; }
 
   // void save(const std::string& file_name) const;
   // Neuron& load(const std::string& file_name);

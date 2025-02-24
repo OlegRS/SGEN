@@ -19,6 +19,9 @@ class Neuron:
         self._morphologic_engine = _sg._Morphologic_engine(self._neuron)
         self._gillespie_engine = _sg._Gillespie_engine(self._neuron)
 
+    def __str__(self):
+        return str(self._neuron)
+
 
     # Analytics
     ### Stationary expectations
@@ -132,7 +135,7 @@ class Neuron:
         gene_timescale = max(1/self.soma().gene_activation_rate(), 1/self.soma().gene_deactivation_rate())
         burn_in = burn_in_factor*max(gene_timescale, max(self.mRNA_time_scales()), max(self.protein_time_scales()))
         print("Gillespie burn-in time: ", burn_in)
-        return self.run_Gillespie(record_times, output_file_name, n_avrg_trajectories, burn_in)
+        return self.Gillespie_sim(record_times, output_file_name, n_avrg_trajectories, burn_in)
     
     def load_Gillespie_sim(self, file_name):
         with open(file_name, "r") as f:
@@ -152,53 +155,51 @@ class Neuron:
         return self._neuron.soma()
 
 
-    # Plotting 
-    def draw_3d(self, visualisation_values=[]):
+    # Plotting
+    def draw_3d(self, visualisation_values=None, color='#32CD32'):
         import pyvista as pv
-
         segments = self.segments()
-        
+    
         start_points = [segments[i][0][:3] for i in range(len(segments))]
         end_points = [segments[i][1][:3] for i in range(len(segments))]
         radii = [segments[i][1][3] for i in range(len(segments))]
 
-        # Make a tube for each segment to represent dendrites
         tubes = []
-        if visualisation_values != []:
-            visualisation_values = np.flip(visualisation_values)
-            all_scalars = [] # Collect scalars for the final mesh
-        for i in range(0,len(segments)):
-            start, end = start_points[i], end_points[i]
-            radius = radii[i]  # Radius of the current segment
+        all_scalars = []
 
-            # Create a tube (cylinder) between two coordinates
+        # Ensure visualisation_values is valid
+        if visualisation_values is not None:
+            visualisation_values = np.flip(visualisation_values)
+
+        for i in range(len(segments)):
+            start, end = start_points[i], end_points[i]
+            radius = radii[i]
+
             tube = pv.Line(start, end).tube(radius=radius)
             tubes.append(tube)
 
-            if visualisation_values != []:
-                # Extend scalars to match the number of points in the current tube
+            if visualisation_values is not None:
                 all_scalars.append(np.full(tube.n_cells, visualisation_values[i]))
 
-        # Combine all tubes into a single mesh
-        neuron_mesh = tubes[0] if tubes else None
+        if not tubes:
+            print("No segments to visualize.")
+            return
+
+        neuron_mesh = tubes[0]
         for tube in tubes[1:]:
             neuron_mesh += tube
 
-        if visualisation_values != []:
-            # Concatenate scalars for all segments
-            flat_scalars = np.concatenate(all_scalars)
-            # Assign scalars to the combined mesh
-            neuron_mesh.cell_data["Protein Levels"] = flat_scalars
-
-        # Visualize the neuron
         plotter = pv.Plotter()
-        if visualisation_values != []:
+    
+        if visualisation_values is not None:
+            flat_scalars = np.concatenate(all_scalars)
+            neuron_mesh.cell_data["Protein Levels"] = flat_scalars
             plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="coolwarm", show_edges=False)
         else:
-            plotter.add_mesh(neuron_mesh, cmap="coolwarm", show_edges=False)
+            plotter.add_mesh(neuron_mesh, color=color, show_edges=False)  # Use a solid color instead of a colormap
+
         plotter.show_axes()
         plotter.show()
-
 
 
 # # Prevent users from instantiating Cpp_Neuron directly

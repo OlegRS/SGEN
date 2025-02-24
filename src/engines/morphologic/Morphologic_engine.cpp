@@ -23,7 +23,7 @@ std::vector<double> Morphologic_engine::volumes() {
   vols[0] = p_neuron->p_soma->cross_section() * p_neuron->p_soma->length;
   
   for(auto& p_junc : p_neuron->p_junctions)
-    vols[p_junc->p_to->id] = p_junc->p_from->cross_section() * p_junc->p_from->length;
+    vols[p_junc->p_to->id] = p_junc->p_to->cross_section() * p_junc->p_to->length;
 
   return vols;
 }
