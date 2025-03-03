@@ -51,7 +51,8 @@ public:
     rnd(prng)
   { initialise_from(*initialise_soma()); }
 
-  Gillespie_engine& refresh() { initialise_from(*initialise_soma()); return *this;}
+  Gillespie_engine& refresh() { initialise_from(*initialise_soma()); return *this; }
+  Gillespie_engine& reset(); // Reset all variables to zero
 
   Gillespie_engine& run_Gillespie(const double& time);
   Gillespie_engine& run_Gillespie(const std::list<double>& write_times, std::ostream&, const double& burn_in=0);

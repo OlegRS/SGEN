@@ -330,3 +330,23 @@ std::vector<std::string> Gillespie_engine::variable_names() {
   
   return var_names;
 }
+
+Gillespie_engine& Gillespie_engine::reset() {
+
+  ev_ind = 0;
+
+  p_neuron->total_rate = 0;
+
+  p_neuron->p_soma->n_active_genes = 0;
+  p_neuron->p_soma->n_mRNAs = 0;
+  p_neuron->p_soma->n_proteins = 0;
+  
+  for(auto& p_ds : p_neuron->p_dend_segments)
+    p_ds->n_mRNAs = p_ds->n_proteins = 0;
+    
+  for(auto& p_s : p_neuron->p_synapses)
+    p_s->n_proteins = 0;
+  
+  initialise_from(*initialise_soma());
+  return *this;
+}

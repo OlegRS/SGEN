@@ -106,9 +106,10 @@ class Neuron:
     def protein_standard_deviation(self, comp):
         return np.sqrt(self._analytic_engine.protein_protein_correlation(comp, comp) - self._analytic_engine.protein_expectation(comp)**2)
 
-
     # Simulation
-    def Gillespie_sim(self, record_times, output_file_name='', n_avrg_trajectories=1, burn_in=0):
+    def Gillespie_sim(self, record_times, output_file_name='', n_avrg_trajectories=1, burn_in=0, reset=False):
+        if(reset):
+            self.reset()
         if n_avrg_trajectories < 1:
             raise ValueError("ERROR in run_Gillespie: Number of trajectories should be greater than zero")
         var_names = ['time'] + self._gillespie_engine.variable_names()
@@ -153,6 +154,10 @@ class Neuron:
 
     def soma(self):
         return self._neuron.soma()
+
+
+    def reset(self):
+        self._gillespie_engine.reset()
 
 
     # Plotting

@@ -14,5 +14,7 @@ void bind_Gillespie_engine(py::module& m) {
            py::arg("record_times"), py::arg("file_name")="Gillespie_out.csv", py::arg("burn_in")=0,
            "Run Gillespie algorithm writing at record_times to file_name with offset time_offset")
       .def("variable_names", &Gillespie_engine::variable_names,
-           "Return ordered array of variable names");
+           "Return ordered array of variable names")
+      .def("reset", &Gillespie_engine::reset,
+           "Set all variables to zero and reset the rates for Gillespie simulation");
 }
