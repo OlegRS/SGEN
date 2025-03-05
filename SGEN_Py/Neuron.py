@@ -95,16 +95,28 @@ class Neuron:
     def prot_prot_covariance(self, comp1, comp2):
         return self._analytic_engine.protein_protein_correlation(comp1,comp2) - self._analytic_engine.protein_expectation(comp1)*self._analytic_engine.protein_expectation(comp2)
 
-    
     def prot_prot_Pearson_correlation(self, comp1, comp2):
         return self.prot_prot_covariance(comp1, comp2)/(np.sqrt(self._analytic_engine.protein_protein_correlation(comp1,comp1)-self._analytic_engine.protein_expectation(comp1)**2)*np.sqrt(self._analytic_engine.protein_protein_correlation(comp2,comp2)-self._analytic_engine.protein_expectation(comp2)**2))
 
-        
     def protein_variance(self, comp):
         return self._analytic_engine.protein_protein_correlation(comp, comp) - self._analytic_engine.protein_expectation(comp)**2
 
     def protein_standard_deviation(self, comp):
         return np.sqrt(self._analytic_engine.protein_protein_correlation(comp, comp) - self._analytic_engine.protein_expectation(comp)**2)
+
+    ### Nonstationary covariances
+    def nonstationary_moments(self, record_times, dt, file_name):
+        results = self._analytic_engine.nonstationary_moments(record_times, dt, file_name)
+        output = {'gene' : np.array([results[t_ind][0][0][0] for t_ind in range(len(record_times))]),
+                  'mRNA' : np.array([results[t_ind][1][0] for t_ind in range(len(record_times))]),
+                  'prot' : np.array([results[t_ind][2][0] for t_ind in range(len(record_times))]),
+                  'gene_gene' : np.array([results[t_ind][3][0][0] for t_ind in range(len(record_times))]),
+                  'gene_mRNA' : np.array([results[t_ind][4][0] for t_ind in range(len(record_times))]),
+                  'mRNA_mRNA' : np.array([results[t_ind][5] for t_ind in range(len(record_times))]),
+                  'gene_prot' : np.array([results[t_ind][6][0] for t_ind in range(len(record_times))]),
+                  'mRNA_prot' : np.array([results[t_ind][7] for t_ind in range(len(record_times))]),
+                  'prot_prot' : np.array([results[t_ind][8] for t_ind in range(len(record_times))])}
+        return output
 
     # Simulation
     def Gillespie_sim(self, record_times, output_file_name='', n_avrg_trajectories=1, burn_in=0, reset=False):
@@ -137,7 +149,7 @@ class Neuron:
         burn_in = burn_in_factor*max(gene_timescale, max(self.mRNA_time_scales()), max(self.protein_time_scales()))
         print("Gillespie burn-in time: ", burn_in)
         return self.Gillespie_sim(record_times, output_file_name, n_avrg_trajectories, burn_in)
-    
+   
     def load_Gillespie_sim(self, file_name):
         with open(file_name, "r") as f:
             var_names = f.readline().strip().split(",")  # Read and split header
@@ -154,7 +166,6 @@ class Neuron:
 
     def soma(self):
         return self._neuron.soma()
-
 
     def reset(self):
         self._gillespie_engine.reset()

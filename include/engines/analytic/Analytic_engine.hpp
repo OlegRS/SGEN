@@ -62,7 +62,7 @@ class Analytic_engine {
   const Compartment* set_prot_As_soma();
   void set_prot_As(const Compartment&);
   const Compartment* set_PM_soma();
-  void set_PM(const Compartment&);
+  void set_PM(const Compartment&);  
 
   const Compartment* update_prot_source_soma();
   void update_prot_source(const Compartment&);
@@ -224,6 +224,8 @@ public:
   Analytic_engine& nonstationary_gene_prot_covariances_direct_ODE_solver_step(const double& dt, const bool& reset_matrices=false);
   Analytic_engine& nonstationary_mRNA_prot_covariances_direct_ODE_solver_step(const double& dt, const bool& reset_matrices=false);
   Analytic_engine& nonstationary_prot_prot_covariances_direct_ODE_solver_step(const double& dt, const bool& reset_matrices=false);
+
+  std::list<std::list<std::vector<std::vector<double>>>> nonstationary_moments_direct_ODE_solver(const std::vector<double>& write_times, const double& dt, const std::string& file_name);
 
   Analytic_engine& stationary_expectations_and_correlations(const std::string& active_gene_expectation_file_name="active_gene_expectation.csv", const std::string& active_gene_variance_file_name="active_gene_variance.csv", const std::string& mRNA_expectations_file_name="mRNA_expectations.csv", const std::string& protein_expectations_file_name="protein_expectations.csv", const std::string& gene_mRNA_covariances_file_name="gene_mRNA_covariances.csv", const std::string& gene_prot_covariances_file_name="gene_prot_covariances.csv", const std::string& mRNA_mRNA_covariances_file_name="mRNA_mRNA_covariances.csv", const std::string& mRNA_prot_covariances_file_name="mRNA_prot_covariances.csv", const std::string& prot_prot_covariances_file_name="prot_prot_covariances.csv");
   

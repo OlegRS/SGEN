@@ -58,6 +58,8 @@ void bind_Analytic_engine(py::module& m) {
       .def("protein_protein_correlation", &Analytic_engine::protein_protein_correlation,
            py::arg("compartment"), py::arg("compartment"),
            "Return protein-protein correlation <n_prot*n_prot>")
+      .def("nonstationary_moments", &Analytic_engine::nonstationary_moments_direct_ODE_solver,
+           "Return nonstationary moments of all variables")
       .def("mRNA_o1_eigenvalues", &Analytic_engine::mRNA_o1_eigenvalues,
            "Return eigenvalues of the matrix of mRNA expected counts' dynamics.")
       .def("protein_o1_eigenvalues", &Analytic_engine::protein_o1_eigenvalues,
