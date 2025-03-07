@@ -1342,24 +1342,29 @@ Analytic_engine& Analytic_engine::nonstationary_protein_expectations_direct_ODE_
 std::list<std::list<std::vector<std::vector<double>>>> Analytic_engine::nonstationary_moments_direct_ODE_solver(const std::vector<double> &write_times, const double &dt, const std::string &file_name) {
 
   auto& soma = *p_neuron->p_soma;
+  
+  // std::ofstream
+  //   ofs_gene(file_name + "_gene_expectations.dat"),
+  //   ofs_mRNA(file_name + "_mRNA_expectations.dat"),
+  //   ofs_prot(file_name + "_prot_expectations.dat"),
+  //   ofs_gene_gene(file_name + "_gene_gene_correlation.dat"),
+  //   ofs_gene_mRNA(file_name + "_gene_mRNA_correlation.dat"),
+  //   ofs_gene_prot(file_name + "_gene_prot_correlation.dat"),
+  //   ofs_mRNA_mRNA(file_name + "_mRNA_mRNA_correlation.dat"),
+  //   ofs_mRNA_prot(file_name + "_mRNA_prot_correlation.dat"),
+  //   ofs_prot_prot(file_name + "_prot_prot_correlation.dat");
+
+  // Resetting the matrices and variables
+  size_t mRNA_dim = 1+p_neuron->p_dend_segments.size();
+  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
 
   soma.n_active_genes_expectation = 0;
   soma.n_active_genes_variance = 0;
 
-  std::ofstream
-    ofs_gene(file_name + "_gene_expectations.dat"),
-    ofs_mRNA(file_name + "_mRNA_expectations.dat"),
-    ofs_prot(file_name + "_prot_expectations.dat"),
-    ofs_gene_gene(file_name + "_gene_gene_correlation.dat"),
-    ofs_gene_mRNA(file_name + "_gene_mRNA_correlation.dat"),
-    ofs_gene_prot(file_name + "_gene_prot_correlation.dat"),
-    ofs_mRNA_mRNA(file_name + "_mRNA_mRNA_correlation.dat"),
-    ofs_mRNA_prot(file_name + "_mRNA_prot_correlation.dat"),
-    ofs_prot_prot(file_name + "_prot_prot_correlation.dat");
-
-  // Resetting the matrices
-  size_t mRNA_dim = 1+p_neuron->p_dend_segments.size();
-  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
+  for(size_t i=0; i<mRNA_dim; ++i)
+    mRNA_expectations[i] = 0;
+  for(size_t i=0; i<prot_dim; ++i)
+    protein_expectations[i] = 0;
   
   if(o2_gene_mRNA) delete o2_gene_mRNA;
   o2_gene_mRNA = new arma::vec(mRNA_dim);
@@ -1373,7 +1378,7 @@ std::list<std::list<std::vector<std::vector<double>>>> Analytic_engine::nonstati
   initialise_mRNA_hopping_rate_matrix();
   set_mRNA_hopping_rate_matrix(soma);
 
-  if(o2_mRNA_prot) delete o2_mRNA_prot;
+  if(p_mRNA_prot_cov_mat) delete p_mRNA_prot_cov_mat;
   p_mRNA_prot_cov_mat = new arma::mat(mRNA_dim, prot_dim);
   set_prot_As(*set_prot_As_soma());
   set_PM(*set_PM_soma());
@@ -1396,38 +1401,39 @@ std::list<std::list<std::vector<std::vector<double>>>> Analytic_engine::nonstati
 
   std::list<std::list<std::vector<std::vector<double>>>> output;
 
-  // Running Euler ODE loop writing at cvertain times
+  // Running Euler ODE loop writing at certain times
   double t = 0;
   for(size_t t_ind=0; t_ind < write_times.size(); ) {
     if(write_times[t_ind] >= t) {
       t += dt;
       while(t_ind != write_times.size() && write_times[t_ind] <= t) {
-        ofs_gene << write_times[t_ind] << ',' << soma.n_active_genes_expectation << std::endl;
-        ofs_mRNA << write_times[t_ind] << ',' << mRNA_expectations << std::endl;
-        ofs_prot << write_times[t_ind] << ',' << protein_expectations << std::endl;
-        ofs_gene_gene << write_times[t_ind] << ',' << soma.n_active_genes_variance << std::endl;
-        ofs_gene_mRNA << write_times[t_ind] << ',' << (*o2_gene_mRNA) << std::endl;
-        ofs_gene_prot << write_times[t_ind] << ',' << (*o2_gene_prot) << std::endl;
-        ofs_mRNA_mRNA << write_times[t_ind] << ',' << (*p_mRNA_mRNA_cov_mat) << std::endl;
-        ofs_mRNA_prot << write_times[t_ind] << ',' << (*p_mRNA_prot_cov_mat) << std::endl;
-        ofs_prot_prot << write_times[t_ind] << ',' << (*p_prot_prot_cov_mat) << std::endl;
+        // ofs_gene << write_times[t_ind] << ":\n" << soma.n_active_genes_expectation << std::endl;
+        // ofs_mRNA << write_times[t_ind] << ":\n" << mRNA_expectations << std::endl;
+        // ofs_prot << write_times[t_ind] << ":\n" << protein_expectations << std::endl;
+        // ofs_gene_gene << write_times[t_ind] << ":\n" << soma.n_active_genes_variance << std::endl;
+        // ofs_gene_mRNA << write_times[t_ind] << ":\n" << (*o2_gene_mRNA) << std::endl;
+        // ofs_gene_prot << write_times[t_ind] << ":\n" << (*o2_gene_prot) << std::endl;
+        // ofs_mRNA_mRNA << write_times[t_ind] << ":\n" << (*p_mRNA_mRNA_cov_mat) << std::endl;
+        // ofs_mRNA_prot << write_times[t_ind] << ":\n" << (*p_mRNA_prot_cov_mat) << std::endl;
+        // ofs_prot_prot << write_times[t_ind] << ":\n" << (*p_prot_prot_cov_mat) << std::endl;
 
         gene[0][0] = soma.n_active_genes_expectation;
         gene_gene[0][0] = soma.n_active_genes_variance;
 
+        // INEFFICIENT copying arma::mat to std::vector<std::vector<double>>
         for(size_t i=0; i<mRNA_dim; ++i) {
-          mRNA[0][i] = mRNA_expectations[i];
-          gene_mRNA[0][i] = (*o2_gene_mRNA)[0,i];
+          mRNA[0][i] = mRNA_expectations(i);
+          gene_mRNA[0][i] = (*o2_gene_mRNA)(i);
           for(size_t j=0; j<mRNA_dim; ++j)
-            mRNA_mRNA[i][j] = (*p_mRNA_mRNA_cov_mat)[i,j];
+            mRNA_mRNA[i][j] = (*p_mRNA_mRNA_cov_mat)(i,j);
           for(size_t j=0; j<prot_dim; ++j)
-            mRNA_prot[i][j] = (*p_mRNA_prot_cov_mat)[i,j];
+            mRNA_prot[i][j] = (*p_mRNA_prot_cov_mat)(i,j);
         }
         for(size_t i=0; i<prot_dim; ++i) {
-          prot[0][i] = protein_expectations[i];
-          gene_prot[0][i] = (*o2_gene_prot)[0,i];
+          prot[0][i] = protein_expectations(i);
+          gene_prot[0][i] = (*o2_gene_prot)(i);
           for(size_t j=0; j<prot_dim; ++j)
-            prot_prot[i][j] = (*p_prot_prot_cov_mat)[i,j];
+            prot_prot[i][j] = (*p_prot_prot_cov_mat)(i,j);
         }
 
         std::list<std::vector<std::vector<double>>> frame;
@@ -1446,8 +1452,16 @@ std::list<std::list<std::vector<std::vector<double>>>> Analytic_engine::nonstati
         
         ++t_ind;
       }
-      if(t_ind != write_times.size()) // This would rarely not be the case with high event rates
-        nonstationary_active_genes_expectations_direct_ODE_solver_step(dt).nonstationary_mRNA_expectations_direct_ODE_solver_step(dt).nonstationary_protein_expectations_direct_ODE_solver_step(dt,false,false,true).nonstationary_gene_gene_covariances_direct_ODE_solver_step(dt).nonstationary_gene_mRNA_covariances_direct_ODE_solver_step(dt).nonstationary_mRNA_mRNA_covariances_direct_ODE_solver_step(dt).nonstationary_gene_prot_covariances_direct_ODE_solver_step(dt).nonstationary_mRNA_prot_covariances_direct_ODE_solver_step(dt).nonstationary_prot_prot_covariances_direct_ODE_solver_step(dt);
+      if(t_ind != write_times.size()) // Almost always the case with high event rates
+        nonstationary_active_genes_expectations_direct_ODE_solver_step(dt)
+          .nonstationary_mRNA_expectations_direct_ODE_solver_step(dt)
+          .nonstationary_protein_expectations_direct_ODE_solver_step(dt,false,false,true)
+          .nonstationary_gene_gene_covariances_direct_ODE_solver_step(dt)
+          .nonstationary_gene_mRNA_covariances_direct_ODE_solver_step(dt)
+          .nonstationary_mRNA_mRNA_covariances_direct_ODE_solver_step(dt)
+          .nonstationary_gene_prot_covariances_direct_ODE_solver_step(dt)
+          .nonstationary_mRNA_prot_covariances_direct_ODE_solver_step(dt)
+          .nonstationary_prot_prot_covariances_direct_ODE_solver_step(dt);
     }
     else {// This should never happen. Keeping for debugging as it does not affect performance.
       std::cerr << "\n------------------------------------------------------------------\n"
@@ -1457,15 +1471,15 @@ std::list<std::list<std::vector<std::vector<double>>>> Analytic_engine::nonstati
     }
   }
 
-  ofs_gene.close();
-  ofs_mRNA.close();
-  ofs_prot.close();
-  ofs_gene_gene.close();
-  ofs_gene_mRNA.close();
-  ofs_gene_prot.close();
-  ofs_mRNA_mRNA.close();
-  ofs_mRNA_prot.close();
-  ofs_prot_prot.close();
+  // ofs_gene.close();
+  // ofs_mRNA.close();
+  // ofs_prot.close();
+  // ofs_gene_gene.close();
+  // ofs_gene_mRNA.close();
+  // ofs_gene_prot.close();
+  // ofs_mRNA_mRNA.close();
+  // ofs_mRNA_prot.close();
+  // ofs_prot_prot.close();
 
   return output;
 }
@@ -1724,7 +1738,7 @@ Analytic_engine& Analytic_engine::stationary_expectations_and_correlations(const
   // << ";  prot_H_max_eig = " << eigval_max(2) << std::endl;
   std::cout << "t_fin = " << t_fin << ";  dt = " << dt << std::endl;
 
-  if(o2_mRNA_prot) delete o2_mRNA_prot;
+  if(p_mRNA_prot_cov_mat) delete p_mRNA_prot_cov_mat;
   p_mRNA_prot_cov_mat = new arma::mat(mRNA_dim, prot_dim);
   
   for(double t=t_start; t<t_fin; t+=dt)
@@ -1892,7 +1906,7 @@ Analytic_engine& Analytic_engine::nonstationary_mRNA_prot_covariances_direct_ODE
     prot_dim = mRNA_dim + p_neuron->p_synapses.size();
 
   if(reset) {
-    if(o2_mRNA_prot) delete o2_mRNA_prot;
+    if(p_mRNA_prot_cov_mat) delete p_mRNA_prot_cov_mat;
     p_mRNA_prot_cov_mat = new arma::mat(mRNA_dim, prot_dim);
     set_prot_As(*set_prot_As_soma());
     set_PM(*set_PM_soma());

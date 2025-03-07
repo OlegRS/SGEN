@@ -35,6 +35,14 @@ target_link_libraries(SGEN PUBLIC ${ARMADILLO_LIBRARIES})
 # Add Python bindings
 # Specify pybind11 directory if not found automatically
 # set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "../extern/pybind11/build/")
+
+execute_process(
+    COMMAND python3 -m pybind11 --cmakedir
+    OUTPUT_VARIABLE pybind11_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+set(CMAKE_PREFIX_PATH "${pybind11_DIR}" ${CMAKE_PREFIX_PATH})
+
 find_package(pybind11 REQUIRED)
 
 # Collect all binding files

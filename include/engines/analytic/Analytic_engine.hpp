@@ -144,7 +144,7 @@ public:
     p_mRNA_Ap(nullptr), p_mRNA_Am(nullptr), p_mRNA_H(nullptr),
     p_prot_Ap(nullptr), p_prot_Am(nullptr), p_prot_H(nullptr),
     p_PM(nullptr),
-    p_mRNA_mRNA_cov_mat(nullptr), p_prot_prot_cov_mat(nullptr),
+    p_mRNA_mRNA_cov_mat(nullptr), p_prot_prot_cov_mat(nullptr), p_mRNA_prot_cov_mat(nullptr),
     p_o1_mat(nullptr), p_o1_RHS(nullptr),
     o1_mRNA_matrix(1+neuron.p_dend_segments.size(), 1+neuron.p_dend_segments.size()),
     o1_prot_matrix(1+neuron.p_dend_segments.size()+neuron.p_synapses.size(), 1+neuron.p_dend_segments.size()+neuron.p_synapses.size()),

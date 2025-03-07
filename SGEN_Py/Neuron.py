@@ -104,8 +104,20 @@ class Neuron:
     def protein_standard_deviation(self, comp):
         return np.sqrt(self._analytic_engine.protein_protein_correlation(comp, comp) - self._analytic_engine.protein_expectation(comp)**2)
 
+    def mRNA_standard_deviation(self, comp):
+        return np.sqrt(self._analytic_engine.mRNA_mRNA_correlation(comp, comp) - self._analytic_engine.mRNA_expectation(comp)**2)
+
+
     ### Nonstationary covariances
-    def nonstationary_moments(self, record_times, dt, file_name):
+    def nonstationary_moments(self, record_times, file_name, dt_factor=.3):#, t_max_factor=3):
+        ## Determining time step from characteristic time scales of the system
+        # gene_long_timescale = max(1/self.soma().gene_activation_rate(), 1/self.soma().gene_deactivation_rate())
+        gene_short_timescale = min(1/self.soma().gene_activation_rate(), 1/self.soma().gene_deactivation_rate())
+        # max_time = t_max_factor * max(gene_long_timescale, max(self.mRNA_time_scales()), max(self.protein_time_scales()))
+        dt = dt_factor * min(gene_short_timescale, min(self.mRNA_time_scales()), min(self.protein_time_scales()))
+
+        print("nonstationary_moments dt=", dt)
+
         results = self._analytic_engine.nonstationary_moments(record_times, dt, file_name)
         output = {'gene' : np.array([results[t_ind][0][0][0] for t_ind in range(len(record_times))]),
                   'mRNA' : np.array([results[t_ind][1][0] for t_ind in range(len(record_times))]),
@@ -172,7 +184,7 @@ class Neuron:
 
 
     # Plotting
-    def draw_3d(self, visualisation_values=None, color='#32CD32'):
+    def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None):
         import pyvista as pv
         segments = self.segments()
     
@@ -215,6 +227,12 @@ class Neuron:
             plotter.add_mesh(neuron_mesh, color=color, show_edges=False)  # Use a solid color instead of a colormap
 
         plotter.show_axes()
+
+        if file_name is not None:
+            plotter.window_size = [1500, 1500]
+            plotter.enable_anti_aliasing()  # Smoothens edges for better quality
+            plotter.save_graphic(file_name)
+
         plotter.show()
 
 
