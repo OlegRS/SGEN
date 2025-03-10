@@ -17,6 +17,11 @@
 *.pdf
 *.npy
 
+PyPl_upload.sh
+SGEN_Py.egg-info/*
+dist/*
+
+
 # Build artifacts
 *.o
 *.a
@@ -24,6 +29,7 @@
 *.dll
 *.dylib
 *.exe
+wheelhouse/*
 
 # IDE files
 *.iml
