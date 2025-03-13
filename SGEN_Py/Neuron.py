@@ -186,6 +186,7 @@ class Neuron:
     # Plotting
     def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None):
         import pyvista as pv
+        pv.set_jupyter_backend('static')
         segments = self.segments()
     
         start_points = [segments[i][0][:3] for i in range(len(segments))]
