@@ -107,7 +107,6 @@ Neuron::Neuron(const std::string& file_name, const std::string& name) : name(nam
         std::cerr << "------------------------------------------\n"
                   << "ERROR: File not found: " << file_name << "\n"
                   << "------------------------------------------\n";
-        std::exit(1);
     }
 
     ifs.seekg(-2, std::ios_base::end);

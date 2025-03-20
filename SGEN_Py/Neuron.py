@@ -3,6 +3,7 @@ sys.path.append('../build')
 
 import _SGEN_Py as _sg
 import numpy as np
+import pyvista as pv
 
 class Neuron:
     def __init__(self, soma, name):
@@ -13,7 +14,10 @@ class Neuron:
         self._gillespie_engine = _sg._Gillespie_engine(self._neuron)
 
     def __init__(self, file_name, name='no_name'):
+        import os
         """Wrapper around the C++ Neuron class with additional plotting."""
+        if not os.path.exists(file_name):
+            raise FileNotFoundError(f"Error: The file '{file_name}' does not exist.")
         self._neuron = _sg._Neuron(file_name, name)
         self._analytic_engine = _sg._Analytic_engine(self._neuron)
         self._morphologic_engine = _sg._Morphologic_engine(self._neuron)
@@ -185,7 +189,6 @@ class Neuron:
 
     # Plotting
     def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None):
-        import pyvista as pv
         if "google.colab" in sys.modules:
             # Seems that only static plotting is supported by colab at the moment
             pv.global_theme.jupyter_backend = 'static'
