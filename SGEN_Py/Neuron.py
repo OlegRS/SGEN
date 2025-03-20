@@ -6,19 +6,15 @@ import numpy as np
 import pyvista as pv
 
 class Neuron:
-    def __init__(self, soma, name):
+    def __init__(self, input_data, name='no_name'):
         """Wrapper around the C++ Neuron class with additional plotting."""
-        self._neuron = _sg._Neuron(soma, name)
-        self._analytic_engine = _sg._Analytic_engine(self._neuron)
-        self._morphologic_engine = _sg._Morphologic_engine(self._neuron)
-        self._gillespie_engine = _sg._Gillespie_engine(self._neuron)
-
-    def __init__(self, file_name, name='no_name'):
-        import os
-        """Wrapper around the C++ Neuron class with additional plotting."""
-        if not os.path.exists(file_name):
-            raise FileNotFoundError(f"Error: The file '{file_name}' does not exist.")
-        self._neuron = _sg._Neuron(file_name, name)
+        if isinstance(input_data, str):
+            import os
+            if not os.path.exists(input_data):
+                raise FileNotFoundError(f"Error: The file '{input_data}' does not exist.")
+            self._neuron = _sg._Neuron(input_data, name)
+        elif isinstance(input_data, _sg.Soma):
+            self._neuron = _sg._Neuron(input_data, name)
         self._analytic_engine = _sg._Analytic_engine(self._neuron)
         self._morphologic_engine = _sg._Morphologic_engine(self._neuron)
         self._gillespie_engine = _sg._Gillespie_engine(self._neuron)
