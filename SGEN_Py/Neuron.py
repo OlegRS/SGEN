@@ -186,7 +186,12 @@ class Neuron:
     # Plotting
     def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None):
         import pyvista as pv
-        pv.set_jupyter_backend('static')
+        if "google.colab" in sys.modules:
+            # Seems that only static plotting is supported by colab at the moment
+            pv.global_theme.jupyter_backend = 'static'
+            pv.global_theme.notebook = True
+            pv.start_xvfb()
+            
         segments = self.segments()
     
         start_points = [segments[i][0][:3] for i in range(len(segments))]

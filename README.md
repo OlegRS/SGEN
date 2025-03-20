@@ -17,6 +17,7 @@ To use the library in **Google Colab**, insert the following commands into a cod
 ```bash
 !git clone https://github.com/OlegRS/SGEN
 %cd SGEN
+!apt install -qq xvfb libgl1-mesa-glx
 !./setup.sh
 ```
 
