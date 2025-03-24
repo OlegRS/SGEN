@@ -58,3 +58,6 @@ python_examples/_*.py
 *.ipynb_checkpoints*
 
 *__pycache__*
+
+# Images and movies
+*.gif

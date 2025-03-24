@@ -1,6 +1,12 @@
 import sys
 sys.path.append('../')
 
+import sys
+import os
+
+# Add the parent directory (../) to the start of sys.path
+sys.path.insert(0, os.path.abspath('../'))
+
 import SGEN_Py as sg
 import numpy as np
 

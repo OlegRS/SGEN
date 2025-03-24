@@ -184,15 +184,15 @@ class Neuron:
 
 
     # Plotting
-    def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None):
+    def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None, plotter=None):
         if "google.colab" in sys.modules:
             # Seems that only static plotting is supported by colab at the moment
             pv.global_theme.jupyter_backend = 'static'
             pv.global_theme.notebook = True
             pv.start_xvfb()
-            
+
         segments = self.segments()
-    
+
         start_points = [segments[i][0][:3] for i in range(len(segments))]
         end_points = [segments[i][1][:3] for i in range(len(segments))]
         radii = [segments[i][1][3] for i in range(len(segments))]
@@ -200,7 +200,6 @@ class Neuron:
         tubes = []
         all_scalars = []
 
-        # Ensure visualisation_values is valid
         if visualisation_values is not None:
             visualisation_values = np.flip(visualisation_values)
 
@@ -222,25 +221,29 @@ class Neuron:
         for tube in tubes[1:]:
             neuron_mesh += tube
 
-        plotter = pv.Plotter()
-    
+        SHOW_PLOTTER = False
+        if plotter is None:
+            plotter = pv.Plotter()  # Default to new plotter only if none provided
+            SHOW_PLOTTER = True
+
+        plotter.clear()  # Clear previous frame
         if visualisation_values is not None:
             flat_scalars = np.concatenate(all_scalars)
             neuron_mesh.cell_data["Protein Levels"] = flat_scalars
             plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="coolwarm", show_edges=False)
         else:
-            plotter.add_mesh(neuron_mesh, color=color, show_edges=False)  # Use a solid color instead of a colormap
+            plotter.add_mesh(neuron_mesh, color=color, show_edges=False)
 
         plotter.show_axes()
 
         if file_name is not None:
             plotter.window_size = [1500, 1500]
-            plotter.enable_anti_aliasing()  # Smoothens edges for better quality
+            plotter.enable_anti_aliasing()
             plotter.save_graphic(file_name)
 
-        plotter.show()
-
-
+        if SHOW_PLOTTER:
+            plotter.show()
+   
 # # Prevent users from instantiating Cpp_Neuron directly
 # def _raise_error(*args, **kwargs):
 #     raise TypeError("Direct instantiation of Cpp_Neuron is not allowed. Use Neuron instead!")
