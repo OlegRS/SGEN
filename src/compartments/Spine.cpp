@@ -1,6 +1,6 @@
 #include "../../include/compartments/Spine.hpp"
 
-Spine::Spine(Compartment &parent, const std::string& name, const double& length, const double& radius, const double& d_theta, const double& d_phi) : Compartment(parent, name, length, radius, d_theta, d_phi) {
+Spine::Spine(Compartment &parent, const std::string& name, const double& length, const double& radius, const double& binding_rate, const double& unbinding_rate, const double& d_theta, const double& d_phi) : Compartment(parent, name, length, radius, d_theta, d_phi), protein_binding_rate(binding_rate), protein_unbinding_rate(unbinding_rate) {
 
   protein_decay_rate = 0;
 

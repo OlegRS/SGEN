@@ -26,8 +26,6 @@ public:
 
   double translation_rate() {return Compartment::translation_rate;}
 
-  Dendritic_segment& copy() const;
-
   Compartment::Type type() const {return APICAL_DENDRITE;}
 
   friend std::ostream& operator<<(std::ostream&, const Dendritic_segment&);

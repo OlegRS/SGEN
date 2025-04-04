@@ -71,6 +71,9 @@ public:
   Neuron& connect(Compartment& comp1, Compartment& comp2);
 
   Neuron& link_compartments(Compartment &comp1, Compartment &comp2);
+  
+  std::vector<Compartment*> compartments() const;
+  std::vector<Compartment*> dendritic_segments() const;
 
   friend std::ostream& operator<<(std::ostream&, const Neuron&);
   friend std::ostream& operator<<(std::ostream&, const Junction&);

@@ -8,6 +8,7 @@
 class Analytic_engine;
 
 class Junction {// Abstract class
+  friend class Neuron;
   friend class Compartment;
   friend class Analytic_engine;
   friend class Gillespie_engine;

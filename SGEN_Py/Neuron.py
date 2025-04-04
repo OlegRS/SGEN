@@ -184,7 +184,7 @@ class Neuron:
 
 
     # Plotting
-    def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None, plotter=None):
+    def draw_3d(self, visualisation_values=None, mRNA_visualisation=False, mRNA_radius=None, color='#32CD32', file_name=None, plotter=None, clim=None):
         if "google.colab" in sys.modules:
             # Seems that only static plotting is supported by colab at the moment
             pv.global_theme.jupyter_backend = 'static'
@@ -202,6 +202,10 @@ class Neuron:
 
         if visualisation_values is not None:
             visualisation_values = np.flip(visualisation_values)
+
+        # Default clim (auto-scaling) if not provided
+        if clim is None:
+            clim = [visualisation_values.min(), visualisation_values.max()] if visualisation_values is not None else None
 
         for i in range(len(segments)):
             start, end = start_points[i], end_points[i]
@@ -230,10 +234,22 @@ class Neuron:
         if visualisation_values is not None:
             flat_scalars = np.concatenate(all_scalars)
             neuron_mesh.cell_data["Protein Levels"] = flat_scalars
-            plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="coolwarm", show_edges=False)
+            plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="coolwarm", clim=clim, show_edges=False, opacity=.5)
         else:
-            plotter.add_mesh(neuron_mesh, color=color, show_edges=False)
+            plotter.add_mesh(neuron_mesh, color=color, show_edges=False, opacity=.5)
 
+        # Add mRNA molecules as small spheres
+        if mRNA_visualisation:
+            dendritic_segments = self._neuron.dendritic_segments()
+            if mRNA_radius is None:
+                mRNA_radius = min([ds.radius() for ds in dendritic_segments])/5
+            # print("soma.position(): ", self.soma.position())
+            # print("soma.mRNA_count(): ", self.soma.mRNA_count())
+            # plotter.add_mesh(pv.Sphere(radius=mRNA_radius, center=soma.position()), color="black")
+            for ds in dendritic_segments:
+                for i in range(ds.mRNA_count()):
+                    plotter.add_mesh(pv.Sphere(radius=mRNA_radius, center=ds.position()), color="black")
+        
         plotter.show_axes()
 
         if file_name is not None:

@@ -163,6 +163,22 @@ Neuron::Neuron(const std::string& file_name, const std::string& name) : name(nam
     delete[] p_compartments;
 }
 
+std::vector<Compartment*> Neuron::compartments() const {
+  std::vector<Compartment*> comps(p_dend_segments.size() + p_synapses.size() + 1);
+
+  comps[0] = p_soma;
+  
+  for(auto& p_junc : p_junctions)
+    comps[p_junc->p_to->id] = p_junc->p_to;
+
+  return comps;
+}
+
+std::vector<Compartment*> Neuron::dendritic_segments() const {
+  return std::vector<Compartment*>(p_dend_segments.begin(), p_dend_segments.end());
+}
+
+
 std::ostream& operator<<(std::ostream &os , const Neuron &neur) {
 
   os << "******* COMPARTMENTS *******:\n"

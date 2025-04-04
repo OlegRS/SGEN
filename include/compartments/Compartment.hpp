@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <list>
+#include <tuple>
 #include "../engines/stochastic/events/Event.hpp"
 #include <math.h>
 
@@ -137,7 +138,13 @@ public:
   Compartment& set_mRNA_decay_rate(const double& rate) {mRNA_decay_rate=rate; return *this;}
   Compartment& set_translation_rate(const double& rate) {translation_rate=rate; return *this;}
   Compartment& set_protein_decay_rate(const double& rate) {protein_decay_rate=rate; return *this;}
-
+  
+  size_t mRNA_count() const {return n_mRNAs;}
+  size_t protein_count() const {return n_proteins;}
+  double radius() const {return r;}
+  std::tuple<double,double,double> position() const {return std::make_tuple(x,y,z);}
+  std::tuple<double,double> orientation() const {return std::make_tuple(theta, phi);}
+  
   virtual ~Compartment() = default;
 
   friend std::ostream& operator<<(std::ostream&, const Compartment&);
