@@ -17,5 +17,7 @@ void bind_Compartment(py::module& m) {
     .def("position", &Compartment::position,
          "Return {x,y,z}-coordinates of the compartment end point")
     .def("orientation", &Compartment::orientation,
-         "Return {theta,phi}-orientation of the compartment cylinder");
+         "Return {theta,phi}-orientation of the compartment cylinder")
+    .def("length", &Compartment::get_length,
+         "Return compartment length");
 }

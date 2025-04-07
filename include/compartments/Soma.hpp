@@ -49,7 +49,10 @@ public:
   double get_gene_activation_rate() const {return gene_activation_rate;}
   double get_gene_deactivation_rate() const {return gene_deactivation_rate;}
 
-  double get_transcription_rate() {return transcription_rate;}
+  double get_transcription_rate() const {return transcription_rate;}
+
+  size_t get_n_gene_copies() const {return number_of_gene_copies;}
+  size_t get_n_active_genes() const {return n_active_genes;}
   
   Compartment::Type type() const {return SOMA;}
   

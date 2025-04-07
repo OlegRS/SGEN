@@ -142,6 +142,7 @@ public:
   size_t mRNA_count() const {return n_mRNAs;}
   size_t protein_count() const {return n_proteins;}
   double radius() const {return r;}
+  double get_length() const {return length;}
   std::tuple<double,double,double> position() const {return std::make_tuple(x,y,z);}
   std::tuple<double,double> orientation() const {return std::make_tuple(theta, phi);}
   

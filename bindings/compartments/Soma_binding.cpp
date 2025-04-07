@@ -18,5 +18,7 @@ void bind_Soma(py::module& m) {
          "Create soma with certain name and length, location (x,y,z) and radius")
     .def("gene_activation_rate", &Soma::get_gene_activation_rate)
     .def("gene_deactivation_rate", &Soma::get_gene_deactivation_rate)
+    .def("n_gene_copies", &Soma::get_n_gene_copies)
+    .def("n_active_genes", &Soma::get_n_active_genes)
     .def("__str__", &to_string);
 }
