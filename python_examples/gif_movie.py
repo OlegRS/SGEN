@@ -23,7 +23,7 @@ def create_neuron_gif(neuron, record_times, output_gif="neuron_sim_br_p2_with_mR
 
     # Extract protein concentration data over time
     mRNA_data = {key: value for key, value in gillespie_data.items() if "_mRNA" in key}
-    mRNA_counts = np.array(list(mRNA_data.values()))
+    active_gene_counts = next((value for key, value in gillespie_data.items() if "gene" in key), None)
     
     # Compute global min/max for consistent color bar
     global_min = np.min(np.log(protein_concentrations.flatten()))    
@@ -40,10 +40,10 @@ def create_neuron_gif(neuron, record_times, output_gif="neuron_sim_br_p2_with_mR
         if camera_position is not None:
             plotter.camera_position = camera_position
         
-        print(f"Time {time}:\n{protein_concentrations[:, t_index]}")  # Debugging output
         # Draw neuron with fixed color bar range
         mRNA_counts = {key: value[t_index] for key, value in mRNA_data.items()}
-        active_gene_count = next((value for key, value in mRNA_data.items() if "gene" in key), None)
+        active_gene_count = active_gene_counts[t_index]
+        print(f"Time: {time}; active_gene_count: {active_gene_count}")  # Debugging output
         neuron.draw_3d(visualisation_values=np.log(protein_concentrations[:, t_index]), plotter=plotter, clim=[global_min, global_max], mRNA_visualisation=True, mRNA_data=mRNA_counts, gene_visualisation=True, active_gene_count=active_gene_count)
         
         # Add time annotation
@@ -66,7 +66,7 @@ def create_neuron_gif(neuron, record_times, output_gif="neuron_sim_br_p2_with_mR
 Dendrite_length = 200 #um
 N_dendritic_segments = 15
 
-soma = sg.Soma("soma", 20, x=0, y=0, z=0, radius=20, transcription_rate=.216)
+soma = sg.Soma("soma", length=20, x=0, y=0, z=0, radius=20, transcription_rate=.216, n_gene_copies=2)
 
 primary_branch = [sg.Dendritic_segment(parent=soma,
                                        name = "d_1-1",
@@ -95,8 +95,7 @@ secondary_branch_2 = [sg.Dendritic_segment(parent=primary_branch[N_dendritic_seg
 for i in np.arange(1,N_dendritic_segments):
     secondary_branch_2.append(sg.Dendritic_segment(parent=secondary_branch_2[i-1],
                                                    name="d_1_2-" + str(i+1),
-                                                   length=Dendrite_length/N_dendritic_segments,
-                                                   radius=5*np.exp(-1/50*i)))
+                                                   length=Dendrite_length/N_dendritic_segments))
 
 # Creating dendritic spines
 s_1_1 = sg.Spine(parent=primary_branch[N_dendritic_segments//3],
@@ -133,8 +132,8 @@ s_12_2 = sg.Spine(parent=secondary_branch_2[2*N_dendritic_segments//3],
                   radius=1,
                   binding_rate=.2)
 
-neuron = sg.Neuron(soma, "Test_neuron")
+neuron = sg.Neuron(soma, "neuron")
 
 # Example Usage
-record_times = np.linspace(0, 100, num=500)  # Define time points for simulation
+record_times = np.linspace(0, 100, num=100)  # Define time points for simulation
 create_neuron_gif(neuron, record_times, camera_position=[(0, Dendrite_length*3.2, Dendrite_length), (0, 0, Dendrite_length), (1, 0, 0)])

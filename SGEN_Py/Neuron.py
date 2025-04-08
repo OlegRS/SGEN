@@ -246,7 +246,7 @@ class Neuron:
 
         if gene_visualisation:
             if gene_length is None:
-               gene_length = min([self.soma().length(), self.soma().radius()])/3
+               gene_length = min([self.soma().length(), self.soma().radius()])/2
             end_pos = self.soma().position()
             theta, phi = self.soma().orientation()
             r, l = self.soma().radius(), self.soma().length()
@@ -258,18 +258,18 @@ class Neuron:
             if active_gene_count is None:
                 for i in range(n_gene_copies):
                     if i < self.soma().n_active_genes():
-                        plotter.add_mesh(pv.Sphere(radius=gene_length, center=center), color="green", opacity=.8)
+                        plotter.add_mesh(pv.Sphere(radius=gene_length/(2*n_gene_copies), center=center), color="green", opacity=.8)
                     else:
-                        plotter.add_mesh(pv.Sphere(radius=gene_length, center=center), color="black", opacity=.8)
+                        plotter.add_mesh(pv.Sphere(radius=gene_length/(2*n_gene_copies), center=center), color="black", opacity=.8)
                     center += 2*gene_radius*n
             else:
                 if n_gene_copies < active_gene_count:
                     raise ValueError(f"n_gene_copies < active_gene_count")
                 for i in range(n_gene_copies):
                     if i < active_gene_count:
-                        plotter.add_mesh(pv.Sphere(radius=gene_length, center=center), color="green", opacity=.8)
+                        plotter.add_mesh(pv.Sphere(radius=gene_length/(2*n_gene_copies), center=center), color="green", opacity=.8)
                     else:
-                        plotter.add_mesh(pv.Sphere(radius=gene_length, center=center), color="black", opacity=.8)
+                        plotter.add_mesh(pv.Sphere(radius=gene_length/(2*n_gene_copies), center=center), color="black", opacity=.8)
                     center += 2*gene_radius*n
                     
         # Add mRNA molecules as small spheres
