@@ -51,8 +51,7 @@ data/*
 
 
 # tests
-python_examples/_*.py
-
+python_examples/_*
 
 # Jupyter notebook checkpoints
 *.ipynb_checkpoints*
