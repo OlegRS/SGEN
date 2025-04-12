@@ -53,7 +53,7 @@ std::vector<double> Analytic_engine::stationary_mRNA_expectations() {
 
   mRNA_stationary_expectations();
 
-  size_t dim = p_neuron->p_dend_segments.size() + p_neuron->p_synapses.size() + 1;
+  size_t dim = p_neuron->p_dend_segments.size() + p_neuron->p_spines.size() + 1;
   std::vector<double> expectations(dim);
 
   expectations[0] = mRNA_expectations(0);
@@ -103,7 +103,7 @@ std::vector<double> Analytic_engine::mRNA_o1_eigenvalues() {
 
 std::vector<double> Analytic_engine::protein_o1_eigenvalues() {
 
-  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
+  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_spines.size();
   std::vector<double> eigvals(prot_dim);
   
   arma::cx_vec eigval_c;
@@ -115,7 +115,6 @@ std::vector<double> Analytic_engine::protein_o1_eigenvalues() {
 
   return eigvals;
 }
-
 
 Analytic_engine& Analytic_engine::internalise_mRNA_expectations() {
   size_t mRNA_size = 1 + p_neuron->p_dend_segments.size();
@@ -176,7 +175,7 @@ std::vector<double> Analytic_engine::stationary_protein_expectations() {
 
   protein_stationary_expectations();
 
-  size_t dim = p_neuron->p_dend_segments.size() + p_neuron->p_synapses.size() + 1;
+  size_t dim = p_neuron->p_dend_segments.size() + p_neuron->p_spines.size() + 1;
   
   std::vector<double> expectations(dim);
   for(size_t i=0; i<dim; ++i)
@@ -187,7 +186,7 @@ std::vector<double> Analytic_engine::stationary_protein_expectations() {
 
 Analytic_engine& Analytic_engine::protein_o1_eigen_decomposition() {
   std::cerr << "Computing eigen decomposition...\n";
-  size_t sz = 1+p_neuron->p_dend_segments.size() + p_neuron->p_synapses.size();
+  size_t sz = 1+p_neuron->p_dend_segments.size() + p_neuron->p_spines.size();
   arma::cx_vec eigval_c;
   arma::vec eigval(sz);
   arma::cx_mat eigvec_c;
@@ -210,7 +209,7 @@ Analytic_engine& Analytic_engine::protein_o1_eigen_decomposition() {
 }
 
 Analytic_engine& Analytic_engine::internalise_prot_expectations() {
-  size_t prot_size = 1 + p_neuron->p_dend_segments.size() + p_neuron->p_synapses.size();
+  size_t prot_size = 1 + p_neuron->p_dend_segments.size() + p_neuron->p_spines.size();
   for(size_t i=0; i<prot_size; ++i)
     *p_o1_prot_expectations[i] = protein_expectations(i);
   return *this;
@@ -253,7 +252,7 @@ Analytic_engine& Analytic_engine::initialise_mRNA_As() {
 Analytic_engine& Analytic_engine::initialise_prot_As() {
   clear_prot_As();
 
-  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
+  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_spines.size();
 
   p_prot_Ap = new arma::mat(prot_dim, prot_dim);
   p_prot_Am = new arma::mat(prot_dim, prot_dim);
@@ -281,7 +280,7 @@ Analytic_engine& Analytic_engine::initialise_mRNA_hopping_rate_matrix() {
 Analytic_engine& Analytic_engine::initialise_prot_hopping_rate_matrix() {
   clear_prot_hopping_rate_matrix();
 
-  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
+  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_spines.size();
   p_prot_H = new arma::mat(prot_dim, prot_dim);
   
   return *this;
@@ -687,7 +686,7 @@ void Analytic_engine::set_prot_As(const Compartment& parent) {
 
 const Compartment* Analytic_engine::set_PM_soma() {
   size_t mRNA_dim = 1 + p_neuron->p_dend_segments.size(),
-    prot_dim = mRNA_dim + p_neuron->p_synapses.size();
+    prot_dim = mRNA_dim + p_neuron->p_spines.size();
 
   if(p_PM)
     delete p_PM;
@@ -1356,7 +1355,7 @@ std::list<std::list<std::vector<std::vector<double>>>> Analytic_engine::nonstati
 
   // Resetting the matrices and variables
   size_t mRNA_dim = 1+p_neuron->p_dend_segments.size();
-  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
+  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_spines.size();
 
   soma.n_active_genes_expectation = 0;
   soma.n_active_genes_variance = 0;
@@ -1570,7 +1569,7 @@ Analytic_engine& Analytic_engine::nonstationary_mRNA_mRNA_covariances_direct_ODE
 Analytic_engine& Analytic_engine::nonstationary_prot_prot_covariances_direct_ODE_solver_step(const double& dt, const bool& reset) {
   auto& soma = *p_neuron->p_soma;  
 
-  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
+  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_spines.size();
     
   if(reset) {
     if(p_prot_prot_cov_mat) delete p_prot_prot_cov_mat;
@@ -1613,7 +1612,7 @@ Analytic_engine& Analytic_engine::stationary_expectations_and_correlations(const
 
   auto& soma = *p_neuron->p_soma;
   size_t mRNA_dim = 1 + p_neuron->p_dend_segments.size(),
-    prot_dim = mRNA_dim + p_neuron->p_synapses.size();
+    prot_dim = mRNA_dim + p_neuron->p_spines.size();
 
   ofs_active_gene_expectations << soma.n_active_genes_expectation;
   ofs_active_gene_expectations.close();
@@ -1785,7 +1784,7 @@ Analytic_engine& Analytic_engine::stationary_expectations_and_correlations(const
 
   auto& soma = *p_neuron->p_soma;
   size_t mRNA_dim = 1 + p_neuron->p_dend_segments.size(),
-    prot_dim = mRNA_dim + p_neuron->p_synapses.size();
+    prot_dim = mRNA_dim + p_neuron->p_spines.size();
 
   ofs_active_gene_expectations << soma.n_active_genes_expectation;
   ofs_active_gene_expectations.close();
@@ -1883,7 +1882,7 @@ Analytic_engine& Analytic_engine::stationary_expectations_and_correlations(const
 Analytic_engine& Analytic_engine::nonstationary_gene_prot_covariances_direct_ODE_solver_step(const double& dt, const bool& reset) {
 
   auto& soma = *p_neuron->p_soma;
-  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
+  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_spines.size();
 
   if(reset) {
     if(o2_gene_prot) delete o2_gene_prot;
@@ -1903,7 +1902,7 @@ Analytic_engine& Analytic_engine::nonstationary_mRNA_prot_covariances_direct_ODE
 
   auto& soma = *p_neuron->p_soma;
   size_t mRNA_dim = 1 + p_neuron->p_dend_segments.size(),
-    prot_dim = mRNA_dim + p_neuron->p_synapses.size();
+    prot_dim = mRNA_dim + p_neuron->p_spines.size();
 
   if(reset) {
     if(p_mRNA_prot_cov_mat) delete p_mRNA_prot_cov_mat;
@@ -2716,7 +2715,7 @@ size_t Analytic_engine::o2_ind(const size_t &i, const size_t &j, const size_t &d
 size_t Analytic_engine::sem_o2_ind(const size_t &i, const size_t &j) const {
   if(i<=j) {
     size_t n_dend = p_neuron->p_dend_segments.size(),
-      n_p = 1 + n_dend + p_neuron->p_synapses.size();
+      n_p = 1 + n_dend + p_neuron->p_spines.size();
     if(i==0)
       return j;
     else if(i>0 && i<n_dend+2 && j<n_dend+2)
@@ -3116,7 +3115,7 @@ std::vector<double> Analytic_engine::stationary_gene_mRNA_covariances() {
 
 const Compartment* Analytic_engine::set_o2_gene_prot_soma() {
   Soma& soma = *(p_neuron->p_soma);
-  size_t sz = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
+  size_t sz = 1+p_neuron->p_dend_segments.size()+p_neuron->p_spines.size();
   
   o2_gene_prot_RHS = new arma::vec(sz);
   o2_gene_prot_mat = new arma::mat(sz,sz);
@@ -3172,7 +3171,7 @@ std::vector<double> Analytic_engine::stationary_gene_protein_covariances() {
 
   gene_protein_stationary_covariances();
 
-  size_t dim = p_neuron->p_dend_segments.size() + p_neuron->p_synapses.size() + 1;  
+  size_t dim = p_neuron->p_dend_segments.size() + p_neuron->p_spines.size() + 1;  
   std::vector<double> correlations(dim);
   for(size_t i=0; i<dim; ++i)
     correlations[i] = (*o2_gene_prot)(i);
@@ -3260,7 +3259,7 @@ std::vector<std::vector<double>> Analytic_engine::stationary_mRNA_mRNA_covarianc
 const Compartment* Analytic_engine::set_o2_mRNA_prot_soma() {
   Soma& soma = *(p_neuron->p_soma);
   size_t sz_mRNA = 1+p_neuron->p_dend_segments.size();
-  size_t sz_prot = sz_mRNA + p_neuron->p_synapses.size();
+  size_t sz_prot = sz_mRNA + p_neuron->p_spines.size();
   
   o2_mRNA_prot_RHS = new arma::vec(sz_mRNA*sz_prot);
   o2_mRNA_prot_mat = new arma::mat(sz_mRNA*sz_prot, sz_mRNA*sz_prot);
@@ -3283,7 +3282,7 @@ void Analytic_engine::set_o2_mRNA_prot_matrix(const Compartment& parent) {
     return;
 
   size_t sz_mRNA = 1 + p_neuron->p_dend_segments.size(),
-    sz_prot = sz_mRNA + p_neuron->p_synapses.size();
+    sz_prot = sz_mRNA + p_neuron->p_spines.size();
   
   for(auto& it_p_junc : parent.it_p_out_junctions) {
     auto& p_junc = *it_p_junc;
@@ -3348,7 +3347,7 @@ std::vector<std::vector<double>> Analytic_engine::stationary_mRNA_protein_covari
   mRNA_protein_stationary_covariances();
 
   size_t mRNA_dim = p_neuron->p_dend_segments.size() + 1,
-    prot_dim = mRNA_dim + p_neuron->p_synapses.size();
+    prot_dim = mRNA_dim + p_neuron->p_spines.size();
   std::vector<std::vector<double>> correlations(mRNA_dim, std::vector<double>(prot_dim));
   for(size_t i=0; i<mRNA_dim; ++i)
     for(size_t j=0; j<prot_dim; ++j)
@@ -3359,7 +3358,7 @@ std::vector<std::vector<double>> Analytic_engine::stationary_mRNA_protein_covari
 
 const Compartment* Analytic_engine::set_o2_prot_prot_soma() {
   Soma& soma = *(p_neuron->p_soma);
-  size_t sz = 1 + p_neuron->p_dend_segments.size() + p_neuron->p_synapses.size();
+  size_t sz = 1 + p_neuron->p_dend_segments.size() + p_neuron->p_spines.size();
   
   o2_prot_prot_RHS = new arma::vec(sz*(sz+1)/2);
   o2_prot_prot_mat = new arma::mat(sz*(sz+1)/2, sz*(sz+1)/2);
@@ -3376,7 +3375,7 @@ void Analytic_engine::set_o2_prot_prot_matrix(const Compartment& parent) {
   if(parent.it_p_out_junctions.empty())
     return;
 
-  size_t sz = 1 + p_neuron->p_dend_segments.size() + p_neuron->p_synapses.size();
+  size_t sz = 1 + p_neuron->p_dend_segments.size() + p_neuron->p_spines.size();
 
   for(auto& it_p_junc : parent.it_p_out_junctions) {
     auto& p_junc = *it_p_junc;
@@ -3444,7 +3443,7 @@ std::vector<std::vector<double>> Analytic_engine::stationary_protein_protein_cov
 
   protein_protein_stationary_covariances();
 
-  size_t dim = p_neuron->p_dend_segments.size() + p_neuron->p_synapses.size() + 1;
+  size_t dim = p_neuron->p_dend_segments.size() + p_neuron->p_spines.size() + 1;
   std::vector<std::vector<double>> correlations(dim, std::vector<double>(dim));
   for(size_t i=0; i<dim; ++i)
     for(size_t j=0; j<i; ++j)
@@ -3468,7 +3467,7 @@ Analytic_engine& Analytic_engine::protein_protein_stationary_covariances(std::of
 
   //////////// COMPUTING VARIANCES and PCCs //////////
   std::cout << "Protein means and standard deviations:\n";
-  size_t sz = 1 + p_neuron->p_dend_segments.size() + p_neuron->p_synapses.size();
+  size_t sz = 1 + p_neuron->p_dend_segments.size() + p_neuron->p_spines.size();
   std::vector<double> rmss(sz);
   for(size_t i=0; i<sz; ++i) {
     rmss[i] = sqrt((*o2_prot_prot)[o2_ind(i, i, sz)] - protein_expectations[i]*(protein_expectations[i]-1));
@@ -3725,7 +3724,7 @@ double Analytic_engine::mRNA_protein_correlation(const Compartment& comp1, const
               << "-----------------------------------------------------------------\n";
     exit(1);
   }
-  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
+  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_spines.size();
   if(comp1.type() != SPINE)
     return (*o2_mRNA_prot)(o2_ind_asym(comp1.mRNA_ind-1,comp2.id, prot_dim));
   else
@@ -3738,7 +3737,7 @@ double Analytic_engine::protein_protein_correlation(const Compartment& comp1, co
               << "--------------------------------------------------------------------\n";
     exit(1);
   }
-  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_synapses.size();
+  size_t prot_dim = 1+p_neuron->p_dend_segments.size()+p_neuron->p_spines.size();
   if(comp1.id != comp2.id)
       return (*o2_prot_prot)(o2_ind(comp1.id, comp2.id, prot_dim));
     else

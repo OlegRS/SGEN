@@ -121,7 +121,7 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const double& time) {
   std::cout << "t," << "Soma_AG," << "Soma_mRNA,"<< "Soma_Prot,";
   for(auto& p_ds : p_neuron->p_dend_segments)
     std::cout << p_ds->name + "_mRNA," << p_ds->name+"_Prot,";
-  for(auto& p_s : p_neuron->p_synapses)
+  for(auto& p_s : p_neuron->p_spines)
     std::cout << p_s->name + "_Prot,";
   std::cout << std::endl;
 
@@ -131,7 +131,7 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const double& time) {
       std::cout << t << ',' << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins << ',';
       for(auto& p_ds : p_neuron->p_dend_segments)
         std::cout << p_ds->n_mRNAs << ',' << p_ds->n_proteins << ',';
-      for(auto& p_s : p_neuron->p_synapses)
+      for(auto& p_s : p_neuron->p_spines)
         std::cout << p_s->n_proteins << ',';
       std::cout << std::endl;
       t_prev = t;
@@ -154,7 +154,7 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times
         os << t << ',' << time_offset + (time_written=*it_times) << ',' << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins;
         for(auto& p_ds : p_neuron->p_dend_segments)
           os << ',' << p_ds->n_mRNAs << ',' << p_ds->n_proteins;
-        for(auto& p_s : p_neuron->p_synapses)
+        for(auto& p_s : p_neuron->p_spines)
           os << ',' << p_s->n_proteins;
         os << std::endl;
         ++it_times;
@@ -168,7 +168,7 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times
         os << t << ',' << time_offset + *it_times << ',' << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins;
         for(auto& p_ds : p_neuron->p_dend_segments)
           os << ',' << p_ds->n_mRNAs << ',' << p_ds->n_proteins;
-        for(auto& p_s : p_neuron->p_synapses)
+        for(auto& p_s : p_neuron->p_spines)
           os << ',' << p_s->n_proteins;
         os << std::endl;
       }
@@ -284,7 +284,7 @@ inline void Gillespie_engine::write_results(const double& time, std::vector<doub
     results[i++] = p_ds->n_proteins;
   }
   
-  for(auto& p_s : p_neuron->p_synapses)
+  for(auto& p_s : p_neuron->p_spines)
     results[i++] = p_s->n_proteins;
 }
 
@@ -292,7 +292,7 @@ inline std::ostream& Gillespie_engine::print_variables(std::ostream& os) {
   os << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins;
   for(auto& p_ds : p_neuron->p_dend_segments)
     os << ',' << p_ds->n_mRNAs << ',' << p_ds->n_proteins;
-  for(auto& p_s : p_neuron->p_synapses)
+  for(auto& p_s : p_neuron->p_spines)
     os << ',' << p_s->n_proteins;
 
   return os;
@@ -304,7 +304,7 @@ inline std::ostream& Gillespie_engine::print_variable_names(std::ostream& os) {
   
   for(auto& p_ds : p_neuron->p_dend_segments)
     os << ',' << p_ds->name << "_mRNA," << p_ds->name << "_prot";
-  for(auto& p_s : p_neuron->p_synapses)
+  for(auto& p_s : p_neuron->p_spines)
     os << ',' << p_s->name << "_prot";
   
   return os;
@@ -325,7 +325,7 @@ std::vector<std::string> Gillespie_engine::variable_names() {
     var_names[i++] = p_ds->name + "_prot";
   }
   
-  for(auto& p_s : p_neuron->p_synapses)
+  for(auto& p_s : p_neuron->p_spines)
     var_names[i++] = p_s->name + "_prot";
   
   return var_names;
@@ -344,7 +344,7 @@ Gillespie_engine& Gillespie_engine::reset() {
   for(auto& p_ds : p_neuron->p_dend_segments)
     p_ds->n_mRNAs = p_ds->n_proteins = 0;
     
-  for(auto& p_s : p_neuron->p_synapses)
+  for(auto& p_s : p_neuron->p_spines)
     p_s->n_proteins = 0;
   
   initialise_from(*initialise_soma());

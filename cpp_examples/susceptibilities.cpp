@@ -10,22 +10,22 @@ int main() {
   Soma soma("soma" /*,Parameters of the soma*/);
 
   ///// Branching neuron
-  std::list<Spine*> p_synapses;
+  std::list<Spine*> p_spines;
   Dendritic_segment ds(soma, "d_1");
   Spine syn_1_1(ds, "s_1_1", .6, 6, 1.2e-5*3600 * 10);
-  p_synapses.push_back(&syn_1_1);
+  p_spines.push_back(&syn_1_1);
   Spine syn_1_2(ds, "s_1_2", .6, 6, 1.2e-5*3600 * 10);
-  p_synapses.push_back(&syn_1_2);
+  p_spines.push_back(&syn_1_2);
   Dendritic_segment ds_1(ds, "d_1_1");
   Spine syn_11_1(ds_1, "s_1_1-1", .6, 6, 1.2e-5*3600 * 10);
-  p_synapses.push_back(&syn_11_1);
+  p_spines.push_back(&syn_11_1);
   Spine syn_11_2(ds_1, "s_1_1-2", .6, 6, 1.2e-5*3600 * 10);
-  p_synapses.push_back(&syn_11_2);
+  p_spines.push_back(&syn_11_2);
   Dendritic_segment ds_2(ds, "d_1_2");
   Spine syn_12_1(ds_2, "s_1_2-1", .6, 6, 1.2e-5*3600 * 10);
-  p_synapses.push_back(&syn_12_1);
+  p_spines.push_back(&syn_12_1);
   Spine syn_12_2(ds_2, "s_1_2-2", .6, 6, 1.2e-5*3600 * 10);
-  p_synapses.push_back(&syn_12_2);
+  p_spines.push_back(&syn_12_2);
 
   Neuron neuron(soma, "Test_neuron");
   
@@ -48,7 +48,7 @@ int main() {
   
   std::cerr << "------------------- Merged loop -----------------------\n";
   for(double prot_dec_rate=pdr_start; prot_dec_rate<pdr_fin; prot_dec_rate+=d_prot_dec_rate) {
-    for(auto syn : p_synapses)
+    for(auto syn : p_spines)
       syn->set_protein_decay_rate(prot_dec_rate);
     //    SYN.set_protein_decay_rate(prot_dec_rate);
     // ds_2.set_translation_rate(0.021*3600*10);

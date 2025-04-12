@@ -27,6 +27,8 @@ void bind_Neuron(py::module& m) {
          "Return list of all compartments' references")
     .def("dendritic_segments", &Neuron::dendritic_segments, py::return_value_policy::reference_internal,
          "Return list of all dendritic segments' references")
+    .def("spines", &Neuron::spines, py::return_value_policy::reference_internal,
+         "Return list of all spines' references")
     .def("refresh", &Neuron::refresh,
          "Update the parameters of the neuron with the current parameters of the compartments")
     .def("__str__", &to_string); // Link Python's str() to C++'s << 

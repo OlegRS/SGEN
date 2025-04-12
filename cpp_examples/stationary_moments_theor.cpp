@@ -15,22 +15,22 @@ void stationary_moments() {
 
   ///// Branching neuron
   Soma soma("soma", 40);
-  std::list<Spine*> p_synapses;
+  std::list<Spine*> p_spines;
   Dendritic_segment ds(soma, "d_1");
   Spine syn_1_1(ds, "s_1_1", .6, 6);
-  p_synapses.push_back(&syn_1_1);
+  p_spines.push_back(&syn_1_1);
   Spine syn_1_2(ds, "s_1_2", .6, 6);
-  p_synapses.push_back(&syn_1_2);
+  p_spines.push_back(&syn_1_2);
   Dendritic_segment ds_1(ds, "d_1_1");
   Spine syn_11_1(ds_1, "s_1_1-1", .6, 6);
-  p_synapses.push_back(&syn_11_1);
+  p_spines.push_back(&syn_11_1);
   Spine syn_11_2(ds_1, "s_1_1-2", .6, 6);
-  p_synapses.push_back(&syn_11_2);
+  p_spines.push_back(&syn_11_2);
   Dendritic_segment ds_2(ds, "d_1_2");
   Spine syn_12_1(ds_2, "s_1_2-1", .6, 6);
-  p_synapses.push_back(&syn_12_1);
+  p_spines.push_back(&syn_12_1);
   Spine syn_12_2(ds_2, "s_1_2-2", .6, 6);
-  p_synapses.push_back(&syn_12_2);
+  p_spines.push_back(&syn_12_2);
 
   Neuron neuron(soma, "Y_neuron");
 

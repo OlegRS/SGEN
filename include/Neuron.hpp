@@ -42,7 +42,7 @@ protected:
 
   Soma* p_soma = nullptr;
   std::list<Compartment*> p_dend_segments;
-  std::list<Compartment*> p_synapses;
+  std::list<Compartment*> p_spines;
   
   std::list<Junction*> p_junctions;
   unsigned int n_SDJ=0, n_DSJ=0, n_DDJ=0; // Numbers of different junctions
@@ -74,6 +74,7 @@ public:
   
   std::vector<Compartment*> compartments() const;
   std::vector<Compartment*> dendritic_segments() const;
+  std::vector<Compartment*> spines() const;
 
   friend std::ostream& operator<<(std::ostream&, const Neuron&);
   friend std::ostream& operator<<(std::ostream&, const Junction&);

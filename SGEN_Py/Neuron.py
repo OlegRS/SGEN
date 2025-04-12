@@ -131,7 +131,9 @@ class Neuron:
         return output
 
     # Simulation
-    def Gillespie_sim(self, record_times, output_file_name='', n_avrg_trajectories=1, burn_in=0, reset=False):
+    def Gillespie_sim(self, record_times, output_file_name=None, n_avrg_trajectories=1, burn_in=0, reset=False, seed=None):
+        if seed is not None:
+            self._gillespie_engine = _sg._Gillespie_engine(self._neuron, seed)
         if(reset):
             self.reset()
         if n_avrg_trajectories < 1:
@@ -140,10 +142,13 @@ class Neuron:
         
         print("Running Gillespie...")
         if n_avrg_trajectories == 1:
-            var_values = np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name+'.csv', burn_in))
+            if output_file_name is None:
+                var_values = np.array(self._gillespie_engine.run_Gillespie(record_times=record_times, burn_in=burn_in))
+            else:
+                var_values = np.array(self._gillespie_engine.run_Gillespie(record_times, output_file_name+'.csv', burn_in))
             var_dict = {var_names[i]: var_values[:,i] for i in range(len(var_names))}
         elif n_avrg_trajectories > 1:
-            if output_file_name == '':
+            if output_file_name is None:
                 var_values = np.array(self._gillespie_engine.run_Gillespie(record_times=record_times, burn_in=burn_in))[:,1:]/n_avrg_trajectories
                 for tn in range(1, n_avrg_trajectories):
                     var_values += np.array(self._gillespie_engine.run_Gillespie(record_times=record_times, burn_in=burn_in))[:,1:]/n_avrg_trajectories
@@ -156,11 +161,13 @@ class Neuron:
             var_dict.update({'time': np.array(record_times)})
         return var_dict
 
-    def stationary_Gillespie_sim(self, record_times, output_file_name='', n_avrg_trajectories=1, burn_in_factor=5):
+    def stationary_Gillespie_sim(self, record_times, output_file_name=None, n_avrg_trajectories=1, burn_in_factor=5, seed=None):
         gene_timescale = max(1/self.soma().gene_activation_rate(), 1/self.soma().gene_deactivation_rate())
         burn_in = burn_in_factor*max(gene_timescale, max(self.mRNA_time_scales()), max(self.protein_time_scales()))
         print("Gillespie burn-in time: ", burn_in)
-        return self.Gillespie_sim(record_times, output_file_name, n_avrg_trajectories, burn_in)
+        if output_file_name is None:
+            return self.Gillespie_sim(record_times, n_avrg_trajectories, burn_in, seed=seed)
+        return self.Gillespie_sim(record_times, output_file_name, n_avrg_trajectories, burn_in, seed=seed)
    
     def load_Gillespie_sim(self, file_name):
         with open(file_name, "r") as f:
@@ -178,6 +185,12 @@ class Neuron:
 
     def soma(self):
         return self._neuron.soma()
+
+    def dendritic_segments(self):
+        return self._neuron.dendritic_segments()
+
+    def spines(self):
+        return self._neuron.spines()
 
     def reset(self):
         self._gillespie_engine.reset()
@@ -218,8 +231,7 @@ class Neuron:
                 all_scalars.append(np.full(tube.n_cells, visualisation_values[i]))
                 
         if not tubes:
-            print("No segments to visualize.")
-            return
+            raise ValueError("No segments to visualise")
 
         neuron_mesh = tubes[0]
         for tube in tubes[1:]:
@@ -229,8 +241,9 @@ class Neuron:
         if plotter is None:
             plotter = pv.Plotter()  # Default to new plotter only if none provided
             SHOW_PLOTTER = True
-
-        plotter.clear()  # Clear previous frame
+        else:
+            plotter.clear()
+            
         if visualisation_values is not None:
             flat_scalars = np.concatenate(all_scalars)
             neuron_mesh.cell_data["Protein Levels"] = flat_scalars
@@ -264,7 +277,7 @@ class Neuron:
                     center += 2*gene_radius*n
             else:
                 if n_gene_copies < active_gene_count:
-                    raise ValueError(f"n_gene_copies < active_gene_count")
+                    raise ValueError("n_gene_copies < active_gene_count")
                 for i in range(n_gene_copies):
                     if i < active_gene_count:
                         plotter.add_mesh(pv.Sphere(radius=gene_length/(2*n_gene_copies), center=center), color="green", opacity=.8)

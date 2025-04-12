@@ -19,5 +19,7 @@ void bind_Compartment(py::module& m) {
     .def("orientation", &Compartment::orientation,
          "Return {theta,phi}-orientation of the compartment cylinder")
     .def("length", &Compartment::get_length,
-         "Return compartment length");
+         "Return compartment length")
+    .def("set_radius", &Compartment::set_radius,
+         "Set radius of the compartment");
 }

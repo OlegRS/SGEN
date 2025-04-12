@@ -14,8 +14,8 @@ void Neuron::associate(Compartment& compartment) {
   compartment.id = comp_id++;
   
   if(p_type == SPINE) {
-    p_synapses.push_back(&compartment);
-    compartment.iterator = p_synapses.end();
+    p_spines.push_back(&compartment);
+    compartment.iterator = p_spines.end();
     compartment.o1_index = o1_index;
     o1_index += 1;
   }
@@ -72,7 +72,7 @@ void Neuron::associate(Compartment& compartment) {
 //   Compartment::Type type = compartment.type();
 
 //   if(type.id == SPINE) 
-//     p_synapses.erase(compartment.iterator);
+//     p_spines.erase(compartment.iterator);
 //   else if(type.id == APICAL_DENDRITE || type.id == BASAL_DENDRITE)
 //     p_dend_segments.erase(compartment.iterator);
   
@@ -85,7 +85,7 @@ Neuron& Neuron::refresh() {
   clear_junctions();
 
   p_dend_segments.clear();
-  p_synapses.clear();
+  p_spines.clear();
   
   o1_index=0; mRNA_ind=1; comp_id=0;
 
@@ -164,7 +164,7 @@ Neuron::Neuron(const std::string& file_name, const std::string& name) : name(nam
 }
 
 std::vector<Compartment*> Neuron::compartments() const {
-  std::vector<Compartment*> comps(p_dend_segments.size() + p_synapses.size() + 1);
+  std::vector<Compartment*> comps(p_dend_segments.size() + p_spines.size() + 1);
 
   comps[0] = p_soma;
   
@@ -178,6 +178,9 @@ std::vector<Compartment*> Neuron::dendritic_segments() const {
   return std::vector<Compartment*>(p_dend_segments.begin(), p_dend_segments.end());
 }
 
+std::vector<Compartment*> Neuron::spines() const {
+  return std::vector<Compartment*>(p_spines.begin(), p_spines.end());
+}
 
 std::ostream& operator<<(std::ostream &os , const Neuron &neur) {
 
@@ -189,7 +192,7 @@ std::ostream& operator<<(std::ostream &os , const Neuron &neur) {
     os << "** " << *p_ds << "\n";
   os << '\n';
   os << "* Spines:\n";
-  for(auto& p_syn : neur.p_synapses)
+  for(auto& p_syn : neur.p_spines)
     os << "** " << *p_syn << "\n";
   os << '\n';
   os << "******* JUNCTIONS *******:\n";
@@ -203,7 +206,7 @@ Neuron& Neuron::clear_junctions() {
   p_soma->clear_junctions();
   for(auto p_ds : p_dend_segments)
     p_ds -> clear_junctions();
-  for(auto p_s : p_synapses)
+  for(auto p_s : p_spines)
     p_s -> clear_junctions();
   for(auto& junct : p_junctions)
     delete junct;
