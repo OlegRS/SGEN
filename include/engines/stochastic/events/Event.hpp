@@ -5,25 +5,28 @@
 
 struct Event {
   
-  struct Type {
-#define GENE_ACTIVATION 0
-#define GENE_DEACTIVATION 1
-#define MRNA_CREATION 2
-#define MRNA_DECAY 3
-#define PROTEIN_CREATION 4
-#define PROTEIN_DECAY 5 
-#define MRNA_HOP_FORWARD 6
-#define MRNA_HOP_BACKWARD 7
-#define PROT_HOP_FORWARD 8
-#define PROT_HOP_BACKWARD 9
-    
+  class Type {
     short id;
+
+  public:
+    enum EventType : short {
+       GENE_ACTIVATION = 0,
+       GENE_DEACTIVATION,
+       MRNA_CREATION,
+       MRNA_DECAY,
+       PROTEIN_CREATION,
+       PROTEIN_DECAY,
+       MRNA_HOP_FORWARD,
+       MRNA_HOP_BACKWARD,
+       PROT_HOP_FORWARD,
+       PROT_HOP_BACKWARD
+    };
   
-    Type(const int& type_id) : id(type_id) {}
+    Type(EventType type_id) : id(type_id) {}
     operator std::string() const;
 
-    friend bool operator==(const Type& type, const short&& id) {return type.id == id;}
-    friend bool operator!=(const Type& type, const short&& id) {return type.id != id;}
+    friend bool operator==(const Type& type, const short& id) {return type.id == id;}
+    friend bool operator!=(const Type& type, const short& id) {return type.id != id;}
     friend std::ostream& operator<<(std::ostream& os, const Type& type) {
       return os << std::string(type);
     }
@@ -36,7 +39,9 @@ struct Event {
   double rate;
   Event& set_rate(double r) {rate=r; return *this;}
   virtual void operator()() = 0;
-  virtual Type type() = 0;
+  virtual Type type() const = 0;
+
+  virtual ~Event() = default;
 };
 
 #endif

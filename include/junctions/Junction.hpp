@@ -37,25 +37,25 @@ protected:
   // For stochastic engines
   struct MRNA_hop_forward : public Event {
     MRNA_hop_forward(Junction* p_loc) : Event(p_loc) {}
-    Event::Type type() {return MRNA_HOP_FORWARD;}
+    Event::Type type() const override {return Event::Type::MRNA_HOP_FORWARD;}
     void operator()();
   } mRNA_hop_forward;
   
   struct MRNA_hop_backward : public Event {
     MRNA_hop_backward(Junction* p_loc) : Event(p_loc) {}
-    Event::Type type() {return MRNA_HOP_BACKWARD;}
+    Event::Type type() const override {return Event::Type::MRNA_HOP_BACKWARD;}
     void operator()();
   } mRNA_hop_backward;
 
   struct Prot_hop_forward : public Event {
     Prot_hop_forward(Junction* p_loc) : Event(p_loc) {}
-    Event::Type type() {return PROT_HOP_FORWARD;}
+    Event::Type type() const override {return Event::Type::PROT_HOP_FORWARD;}
     void operator()();
   } prot_hop_forward;
 
   struct Prot_hop_backward : public Event {
     Prot_hop_backward(Junction* p_loc) : Event(p_loc) {}
-    Event::Type type() {return PROT_HOP_BACKWARD;}
+    Event::Type type() const override {return Event::Type::PROT_HOP_BACKWARD;}
     void operator()();
   } prot_hop_backward;
 

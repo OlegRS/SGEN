@@ -78,22 +78,22 @@ protected:
   // For stochastic engines
   struct Protein_creation : public Event {
     Protein_creation(Compartment* p_loc) : Event(p_loc) {}
-    Event::Type type() {return PROTEIN_CREATION;}
+    Event::Type type() const override {return Event::Type::PROTEIN_CREATION;}
     void operator()();
   } protein_creation;
   struct Protein_decay : public Event {
     Protein_decay(Compartment* p_loc) : Event(p_loc) {}
-    Event::Type type() {return PROTEIN_DECAY;}
+    Event::Type type() const override {return Event::Type::PROTEIN_DECAY;}
     void operator()();
   } protein_decay;
   struct MRNA_creation : public Event {
     MRNA_creation(Compartment* p_loc) : Event(p_loc) {}
-    Event::Type type() {return MRNA_CREATION;}
+    Event::Type type() const override {return Event::Type::MRNA_CREATION;}
     void operator()();
   } mRNA_creation;
   struct MRNA_decay : public Event {
     MRNA_decay(Compartment* p_loc) : Event(p_loc) {}
-    Event::Type type() {return MRNA_DECAY;}
+    Event::Type type() const override {return Event::Type::MRNA_DECAY;}
     void operator()();
   } mRNA_decay;
 

@@ -17,13 +17,13 @@ class Soma : public Compartment {
   // For Monte Carlo engines
   struct Gene_activation : public Event {
     Gene_activation(Soma* p_loc) : Event(p_loc) {}
-    Event::Type type() {return GENE_ACTIVATION;}
+    Event::Type type() const override {return Event::Type::GENE_ACTIVATION;}
     void operator()();
   } gene_activation;
 
   struct Gene_deactivation : public Event {
     Gene_deactivation(Soma* p_loc) : Event(p_loc) {}
-    Event::Type type() {return GENE_DEACTIVATION;}
+    Event::Type type() const override {return Event::Type::GENE_DEACTIVATION;}
     void operator()();
   } gene_deactivation;
 
