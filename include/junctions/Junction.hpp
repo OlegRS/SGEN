@@ -38,25 +38,25 @@ protected:
   struct MRNA_hop_forward : public Event {
     MRNA_hop_forward(Junction* p_loc) : Event(p_loc) {}
     Event::Type type() const override {return Event::Type::MRNA_HOP_FORWARD;}
-    void operator()();
+    void operator()() override;
   } mRNA_hop_forward;
   
   struct MRNA_hop_backward : public Event {
     MRNA_hop_backward(Junction* p_loc) : Event(p_loc) {}
     Event::Type type() const override {return Event::Type::MRNA_HOP_BACKWARD;}
-    void operator()();
+    void operator()() override;
   } mRNA_hop_backward;
 
   struct Prot_hop_forward : public Event {
     Prot_hop_forward(Junction* p_loc) : Event(p_loc) {}
     Event::Type type() const override {return Event::Type::PROT_HOP_FORWARD;}
-    void operator()();
+    void operator()() override;
   } prot_hop_forward;
 
   struct Prot_hop_backward : public Event {
     Prot_hop_backward(Junction* p_loc) : Event(p_loc) {}
     Event::Type type() const override {return Event::Type::PROT_HOP_BACKWARD;}
-    void operator()();
+    void operator()() override;
   } prot_hop_backward;
 
   double fwd_mRNA_hop_rate, bkwd_mRNA_hop_rate, fwd_prot_hop_rate, bkwd_prot_hop_rate;

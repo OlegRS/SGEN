@@ -118,19 +118,6 @@ for i in np.arange(1,N_dendritic_segments):
                                                    length=Dendrite_length/N_dendritic_segments, translation_rate=75.6/10))
 
 # Creating dendritic spines
-
-# s_1_1 = sg.Spine(parent=primary_branch[N_dendritic_segments//3],
-#                  name="s_1_1",
-#                  length=10,
-#                  radius=1,
-#                  binding_rate=.2)
-# s_1_2 = sg.Spine(parent=primary_branch[2*N_dendritic_segments//3],
-#                  name="s_1_2",
-#                  length=10,
-#                  radius=1,
-#                  d_theta=-np.pi/2,
-#                  binding_rate=.2)
-
 cs_1_1 = sg.Composite_spine(parent=primary_branch[N_dendritic_segments//3],
                             name="s_1_1",
                             d_phi=np.pi/4,
@@ -144,27 +131,27 @@ s_11_1 = sg.Spine(parent=secondary_branch_1[N_dendritic_segments//3],
                   length=10,
                   radius=1,
                   binding_rate=.2,
-                  middle_placement=True)
+                  placement="middle")
 s_11_2 = sg.Spine(parent=secondary_branch_1[2*N_dendritic_segments//3],
                   name = "s_11_2",
                   length=10,
                   radius=1,
                   d_theta=-np.pi/2,
                   binding_rate=.2,
-                  middle_placement=True)
+                  placement="middle")
 s_12_1 = sg.Spine(parent=secondary_branch_2[N_dendritic_segments//3],
                   name="s_12_1",
                   length=10,
                   radius=1,
                   d_theta=-np.pi/2,
                   binding_rate=.2,
-                  middle_placement=True)
+                  placement="middle")
 s_12_2 = sg.Spine(parent=secondary_branch_2[2*N_dendritic_segments//3],
                   name="s_12_2",
                   length=10,
                   radius=1,
                   binding_rate=.2,
-                  middle_placement=True)
+                  placement="middle")
 
 neuron = sg.Neuron(soma, "neuron")
 

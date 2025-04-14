@@ -18,7 +18,7 @@ class Spine : public Compartment {
   
 public:
   Spine();
-  Spine(Compartment &parent, const std::string& name = "no_name", const double& length=2, const double& radius=1, const double& binding_rate=.6, const double& unbinding_rate=6, const double& d_theta=PI/2, const double& d_phi=0, const bool& MIDDLE_PLACEMENT=false);
+  Spine(Compartment &parent, const std::string& name = "no_name", const double& length=2, const double& radius=1, const double& binding_rate=.6, const double& unbinding_rate=6, const double& d_theta=PI/2, const double& d_phi=0, const std::string& placement="end");
   Spine(Compartment &parent, const std::string& name, const double &protein_binding_rate, const double &protein_unbinding_rate, const double &protein_decay_rate=0, const unsigned int &protein_number = 0);
 
   const double& get_protein_binding_rate() const {return protein_binding_rate;}
@@ -27,7 +27,7 @@ public:
   Spine& set_protein_binding_rate(const double& rate) {protein_binding_rate=rate; return *this;}
   Spine& set_protein_unbinding_rate(const double& rate) {protein_unbinding_rate=rate; return *this;}
 
-  Compartment::Type type() const {return SPINE;}
+  Compartment::Type type() const override {return SPINE;}
 
   friend std::ostream& operator<<(std::ostream&, const Spine&);
 };

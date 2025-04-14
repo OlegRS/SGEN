@@ -18,13 +18,13 @@ class Soma : public Compartment {
   struct Gene_activation : public Event {
     Gene_activation(Soma* p_loc) : Event(p_loc) {}
     Event::Type type() const override {return Event::Type::GENE_ACTIVATION;}
-    void operator()();
+    void operator()() override;
   } gene_activation;
 
   struct Gene_deactivation : public Event {
     Gene_deactivation(Soma* p_loc) : Event(p_loc) {}
     Event::Type type() const override {return Event::Type::GENE_DEACTIVATION;}
-    void operator()();
+    void operator()() override;
   } gene_deactivation;
 
   double n_active_genes_expectation = gene_activation_rate/(gene_activation_rate + gene_deactivation_rate)*number_of_gene_copies;
@@ -54,7 +54,7 @@ public:
   size_t get_n_gene_copies() const {return number_of_gene_copies;}
   size_t get_n_active_genes() const {return n_active_genes;}
   
-  Compartment::Type type() const {return SOMA;}
+  Compartment::Type type() const override {return SOMA;}
   
   Compartment* operator+=(Compartment&);
 

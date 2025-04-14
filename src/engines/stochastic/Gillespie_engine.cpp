@@ -83,36 +83,39 @@ inline double Gillespie_engine::draw_delta_t() {
 
 void Gillespie_engine::update_Gillespie() {  
   // Sampling the event
-  
-  // std::vector<double> probabilities(p_events.size());
-  // for(size_t i=0; i<p_events.size(); ++i)
-  //   probabilities[i] = p_events[i]->rate;
-
-  // std::discrete_distribution<int> distribution(probabilities.begin(), probabilities.end());          
-  // int i = distribution(generator);
-
-  // double s=0;
-  // for(auto& p_event : p_events)
-  //   s+=p_event->rate;
-  // if(abs(p_neuron->total_rate - s) > 1e-5) {
-  //   std::cerr << "total_rate - s = " << p_neuron->total_rate - s << std::endl;
-  // }
-
   size_t i=0;
   double r = rnd()*p_neuron->total_rate;
   for(double sum=p_events[0]->rate; sum<r; sum += p_events[i]->rate)
-    ++i;
-  if(i<p_events.size())
-    (*p_events[i])(); // Triggering the event
-  else { // Recalculate total rate when numerical errors accumulate
-    std::cerr <<"\n-----------------------------------------\n"
-              <<" WARNING: GILLESPIE ENGINE ANOMALY DETECTED"
-              <<"\n-----------------------------------------\n";
-    double s=0;
-    for(auto& p_event : p_events)
-      s+=p_event->rate;
-    std::cerr << "total_rate - s = " << p_neuron->total_rate - s << std::endl;
-  }
+    if(++i >= p_events.size()) {
+      // Recaculate total rate when numerical errors accumulate
+      double s=0;
+      for(auto& p_event : p_events)
+        s += p_event->rate;
+      std::cerr << "\n--- WARNING: Numerical Errors Detected in Gillespie Simulation ---\n"
+                << "Details:\n"
+                << "- Floating-point error accumulation caused a deviation in the total rate.\n"
+                << "- Current total_rate: " << p_neuron->total_rate << "\n"
+                << "- Actual sum_of_all_event_rates: " << s << "\n"
+                << "- Discrepancy (total_rate - sum_of_all_event_rates): " << p_neuron->total_rate - s << "\n";
+      
+      p_neuron->total_rate = s;
+      for(i=p_events.size() - 1; p_events[i]->rate==0; --i); // Setting the last event with nonzero rate
+
+      std::cerr << "Resolution:\n"
+                << "- The total_rate has been corrected, and the last event has been resampled.\n"
+                << "- Executing " << p_events[i]->type() << " which is " << i << "-th event of " << p_events.size() << std::endl
+                << "- OVERALL SIMULATION RESULTS ARE LIKELY UNAFFECTED.\n"
+                << "Additional info:\n"
+                << " - To eliminate this problem at the cost of reduced efficiency\n"
+                << " - run the simulation with RESUM flag, which recomputes the sum of all rates\n"
+                << " - at each event instead of adding the event rate difference.\n";
+
+      (*p_events[i])(); // Triggering the event
+
+      return;
+    }
+  
+  (*p_events[i])(); // Triggering the event
 }
 
 Gillespie_engine& Gillespie_engine::run_Gillespie(const double& time) {
@@ -225,7 +228,7 @@ std::vector<std::vector<double>> Gillespie_engine::run_Gillespie(const std::vect
         }
 
         if(t_ind != times.size()) {// This would rarely not be the case with high event rates
-          update_Gillespie();           
+          update_Gillespie();
           ++event_count;
         }
       }
