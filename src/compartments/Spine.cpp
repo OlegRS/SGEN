@@ -1,9 +1,7 @@
 #include "../../include/compartments/Spine.hpp"
 
-Spine::Spine(Compartment &parent, const std::string& name, const double& length, const double& radius, const double& binding_rate, const double& unbinding_rate, const double& d_theta, const double& d_phi, const std::string& placement) : Compartment(parent, name, length, radius, d_theta, d_phi, placement), protein_binding_rate(binding_rate), protein_unbinding_rate(unbinding_rate) {
-
-  protein_decay_rate = 0;
-
+Spine::Spine(Compartment &parent, const std::string& name, const double& length, const double& radius, const double& binding_rate, const double& unbinding_rate, const double& protein_decay_rate, const double& d_theta, const double& d_phi, const std::string& placement) : Compartment(parent, name, length, radius, d_theta, d_phi, placement, /*mRNA_decay_rate*/0.0432, /*translation_rate*/75.6, protein_decay_rate), protein_binding_rate(binding_rate), protein_unbinding_rate(unbinding_rate) {
+ 
   parent.p_descendants.push_back(this);
   
   if(parent.p_neuron) {

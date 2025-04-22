@@ -104,7 +104,7 @@ void Gillespie_engine::update_Gillespie() {
       std::cerr << "Resolution:\n"
                 << "- The total_rate has been corrected, and the last event has been resampled.\n"
                 << "- Executing " << p_events[i]->type() << " which is " << i << "-th event of " << p_events.size() << std::endl
-                << "- OVERALL SIMULATION RESULTS ARE LIKELY UNAFFECTED.\n"
+                << "- SIMULATION RESULTS ARE LIKELY UNAFFECTED.\n"
                 << "Additional info:\n"
                 << " - To eliminate this problem at the cost of reduced efficiency\n"
                 << " - run the simulation with RESUM flag, which recomputes the sum of all rates\n"

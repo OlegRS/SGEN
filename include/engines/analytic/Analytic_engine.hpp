@@ -38,7 +38,7 @@ class Analytic_engine {
     *o2_prot_prot, *o2_prot_prot_RHS;
 
   // Variables
-  std::vector<std::string> o1_var_names, o1_mRNA_names, o1_prot_names,  *p_o2_var_names;
+  std::vector<std::string> o1_var_names, o1_mRNA_names, o1_prot_names, *p_o2_var_names;
   std::vector<double*> p_o1_vars,
     p_o1_mRNA_expectations, p_o1_prot_expectations; // Pointers to variables within the compartments
   // /// These are needed to fill o1_matrix
@@ -80,6 +80,9 @@ class Analytic_engine {
   void set_o1_matrix(const Compartment&);
   const Compartment* sem_set_o1_soma();
   void sem_set_o1_matrix(const Compartment&);
+
+  const Compartment* set_o1_prot_names_soma();
+  void set_o1_prot_names(const Compartment& parent);
 
   // 1st order with separations of gene-mRNA-protein dynamics
   const Compartment* set_o1_mRNA_soma(); //Computes expectation of active genes and sets RHS for mRNA eqns

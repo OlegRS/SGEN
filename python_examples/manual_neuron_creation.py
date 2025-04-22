@@ -35,13 +35,13 @@ for i in np.arange(1,N_dendritic_segments):
                                                    length=Dendrite_length/N_dendritic_segments))
 
 secondary_branch_2 = [sg.Dendritic_segment(parent=primary_branch[N_dendritic_segments-1],
-                                           name="d_1_1-0",
+                                           name="d_1_2-0",
                                            length=Dendrite_length/N_dendritic_segments,
                                            d_theta=-30*np.pi/360,
                                            d_phi=0)]
 for i in np.arange(1,N_dendritic_segments):
     secondary_branch_2.append(sg.Dendritic_segment(parent=secondary_branch_2[i-1],
-                                                   name="d_1_1-" + str(i+1),
+                                                   name="d_1_2-" + str(i+1),
                                                    length=Dendrite_length/N_dendritic_segments,
                                                    radius=5*np.exp(-1/50*i)))
 

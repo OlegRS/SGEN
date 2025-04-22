@@ -33,8 +33,9 @@ std::vector<std::vector<std::vector<double>>> Morphologic_engine::segments() {
       segs[p_junc->p_to->id][1] = {p_junc->p_to->x,p_junc->p_to->y,p_junc->p_to->z,p_junc->p_to->r};
     }
     else
-      std::cerr << "--- ERROR: Unknown compartment placement method\n"
-                << "- Should be either \"end\", \"middle\" or \"random\".\n";
+      std::cerr << "--- ERROR: Unknown placement method: \"" << p_junc->p_to->placement << '\"'
+                << "\n- for " << p_junc->p_to->name
+                << "\n- Should be either \"end\", \"middle\" or \"random\".\n";
   
   return segs;
 }

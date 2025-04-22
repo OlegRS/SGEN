@@ -22,7 +22,6 @@ class Neuron:
     def __str__(self):
         return str(self._neuron)
 
-
     # Analytics
     ### Stationary expectations
     def active_gene_expectation(self):
@@ -31,7 +30,7 @@ class Neuron:
     def mRNA_expectations(self, dict_return=False):
         mRNA_expectations = self._analytic_engine.stationary_mRNA_expectations()
         if dict_return:
-            return dict(zip(self._analytic_engine.o1_mRNA_names(), mRNA_expectations))
+            return dict(zip(self._analytic_engine.o1_prot_names(), mRNA_expectations))
         else:
             return np.array(mRNA_expectations)
     
@@ -166,7 +165,7 @@ class Neuron:
         burn_in = burn_in_factor*max(gene_timescale, max(self.mRNA_time_scales()), max(self.protein_time_scales()))
         print("Gillespie burn-in time: ", burn_in)
         if output_file_name is None:
-            return self.Gillespie_sim(record_times, n_avrg_trajectories, burn_in, seed=seed)
+            return self.Gillespie_sim(record_times, n_avrg_trajectories=n_avrg_trajectories, burn_in=burn_in, seed=seed)
         return self.Gillespie_sim(record_times, output_file_name, n_avrg_trajectories, burn_in, seed=seed)
    
     def load_Gillespie_sim(self, file_name):
@@ -197,7 +196,7 @@ class Neuron:
 
 
     # Plotting
-    def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None, plotter=None, clim=None, mRNA_visualisation=False, mRNA_radius=None, mRNA_data=None, gene_visualisation=False, active_gene_count=None, gene_length=None, show_axes=False, camera_position=None):
+    def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None, plotter=None, scalar_bar_args=None, cbar_scale="linear", clim=None, mRNA_visualisation=False, mRNA_radius=None, mRNA_data=None, gene_visualisation=False, active_gene_count=None, gene_length=None, show_axes=False, camera_position=None):
         if "google.colab" in sys.modules:
             # Seems that only static plotting is supported by colab at the moment
             pv.global_theme.jupyter_backend = 'static'
@@ -214,12 +213,26 @@ class Neuron:
         all_scalars = []
         
         if visualisation_values is not None:
+            if clim is None:
+                clim = [visualisation_values.min(), visualisation_values.max()] if visualisation_values is not None else None
+                
             visualisation_values = np.flip(visualisation_values)
             
-        # Default clim (auto-scaling) if not provided
-        if clim is None:
-            clim = [visualisation_values.min(), visualisation_values.max()] if visualisation_values is not None else None
-            
+            if cbar_scale == "uniform":
+                expected_concentrations = self.expected_counts()["prot"] / neuron.volumes()
+                expected_concentrations_appended = np.append(expected_concentrations, [clim[0] - 1e-7, clim[1] + 1e-7])
+                sorted_ec = np.sort(expected_concentrations_appended)
+                rescaled_pc = np.zeros(visualisation_values.shape)
+                for i in range(visualisation_values.shape[0]):
+                    m = np.searchsorted(sorted_ec, visualisation_values[i])-1 # Find index: sorted_ec[m] < visualisation_values[i] < sorted_ec[m+1]
+                    rescaled_pc[i] = m + (visualisation_values[i] - sorted_ec[m])/(sorted_ec[m+1] - sorted_ec[m])
+            elif cbar_scale == "log":
+                rescaled_pc = np.log(visualisation_values)
+            elif cbar_scale == "linear":
+                rescaled_pc = visualisation_values
+            else:
+                raise ValueError("cbar_scale can be either \"uniform\", \"log\" or \"linear\"")
+
         for i in range(len(segments)):
             start, end = start_points[i], end_points[i]
             radius = radii[i]
@@ -247,10 +260,25 @@ class Neuron:
         if visualisation_values is not None:
             flat_scalars = np.concatenate(all_scalars)
             neuron_mesh.cell_data["Protein Levels"] = flat_scalars
+            if scalar_bar_args is not None:
+                # Define colorbar parameters
+                scalar_bar_args = {
+                    "title": "Protein Concentration",
+                    # "title_font_size": 18,
+                    # "label_font_size": 14,
+                    # "color": "black",
+                    # "position_x": 0.8,   # Horizontal position in range [0,1]
+                    # "position_y": 0.05,  # Vertical position in range [0,1]
+                    # "width": 0.08,       # Width of the bar in figure coords
+                    # "height": 0.9,       # Height of the bar in figure coords
+                    "n_labels": 5,       # Number of tick labels (can be overridden below)
+                    "fmt": "%.2e",       # Format string for tick labels
+                    "vertical": False    # Orientation
+                }
             if mRNA_visualisation:
-                plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="coolwarm", clim=clim, show_edges=False, opacity=.5)
+                plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="viridis", clim=clim, show_edges=False, opacity=.5, scalar_bar_args=scalar_bar_args)
             else:
-                plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="coolwarm", clim=clim, show_edges=False)
+                plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="viridis", clim=clim, show_edges=False, scalar_bar_args=scalar_bar_args)
         else:
             if mRNA_visualisation:
                 plotter.add_mesh(neuron_mesh, color=color, show_edges=False, opacity=.5)

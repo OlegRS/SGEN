@@ -61,7 +61,7 @@ protected:
     theta=0, phi=0, // Orientaiton in radians
     x, y, z; // Coordinates of the first end of the compartment
 
-  std::string placement;
+  std::string placement="end";
 
   std::list<Compartment*> p_descendants; // Descendants of the compartment in the tree
 

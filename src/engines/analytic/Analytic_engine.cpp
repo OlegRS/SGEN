@@ -50,8 +50,9 @@ Analytic_engine& Analytic_engine::mRNA_stationary_expectations() {
 }
 
 std::vector<double> Analytic_engine::stationary_mRNA_expectations() {
-
+  
   mRNA_stationary_expectations();
+  set_o1_prot_names(*set_o1_prot_names_soma());
 
   size_t dim = p_neuron->p_dend_segments.size() + p_neuron->p_spines.size() + 1;
   std::vector<double> expectations(dim);
@@ -123,6 +124,22 @@ Analytic_engine& Analytic_engine::internalise_mRNA_expectations() {
   return *this;
 }
 
+const Compartment* Analytic_engine::set_o1_prot_names_soma() {
+  o1_prot_names[0] = p_neuron->p_soma->name;
+  return p_neuron->p_soma;
+}
+
+void Analytic_engine::set_o1_prot_names(const Compartment& parent) {
+  if(parent.it_p_out_junctions.empty())
+    return;
+
+  for(auto& it_p_junc : parent.it_p_out_junctions)
+    o1_prot_names[(*it_p_junc)->p_to->id] = (*it_p_junc)->p_to->name;
+
+  for(auto& it_p_junc : parent.it_p_out_junctions)
+    set_o1_prot_names(*((*it_p_junc)->p_to));
+}
+
 const Compartment* Analytic_engine::set_o1_prot_soma() {
   auto& soma = *p_neuron->p_soma;
   o1_prot_matrix(0,0) -= soma.protein_decay_rate;
@@ -153,10 +170,9 @@ void Analytic_engine::set_o1_prot_matrix(const Compartment& parent) {
     o1_prot_matrix(desc_start_ind, desc_start_ind) -= p_junc->bkwd_prot_hop_rate;
 
 
-    if(p_junc->type() != DEN_SYN) {// Protein decay everywhere apart from synapses
-      o1_prot_matrix(desc_start_ind, desc_start_ind) -= p_junc->p_to->protein_decay_rate;
+    o1_prot_matrix(desc_start_ind, desc_start_ind) -= p_junc->p_to->protein_decay_rate;
+    if(p_junc->type() != DEN_SYN) // There is no translation in synapses (n_mRNA_expectation==0)
       o1_prot_RHS(desc_start_ind) = -(p_junc->p_to->n_mRNA_expectation)*(p_junc->p_to->translation_rate);
-    }
   }
 
   for(auto& it_p_junc : parent.it_p_out_junctions)
