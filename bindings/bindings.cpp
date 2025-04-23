@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+#include "../include/randomisation/PRNG.hpp"
 
 namespace py = pybind11;
 
@@ -24,4 +25,9 @@ PYBIND11_MODULE(_SGEN_Py, m) {
     bind_Analytic_engine(m);
     bind_Morphologic_engine(m);
     bind_Gillespie_engine(m);
+
+    // Module-level utilities for randomisation
+    m.def("set_PRNG_seed", [](const unsigned& seed) {
+        PRNG::instance().set_seed(seed);
+    }, "Seed the internal pseudorandom number generator");
 }

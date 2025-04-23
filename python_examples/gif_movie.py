@@ -15,7 +15,8 @@ import imageio
 def create_neuron_gif(neuron, record_times, output_gif="neuron_sim_br_p2_with_mRNA.gif", camera_position=None, frames_dir=None, sim_file_name=None, cbar_scale="linear"):
     expectations = neuron.expected_counts()['prot']
     if sim_file_name is None:
-        gillespie_data = neuron.stationary_Gillespie_sim(record_times, output_file_name="Gillespie_ordinary_spines", seed=1)
+        sg.set_PRNG_seed(1)
+        gillespie_data = neuron.stationary_Gillespie_sim(record_times, output_file_name="Gillespie_ordinary_spines")
     else:
         gillespie_data = neuron.load_Gillespie_sim(sim_file_name)
         record_times = gillespie_data["time"]

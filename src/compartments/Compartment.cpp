@@ -2,17 +2,22 @@
 #include "../../include/compartments/Soma.hpp"
 #include "../../include/compartments/Dendritic_segment.hpp"
 #include "../../include/compartments/Spine.hpp"
+#include "../../include/randomisation/PRNG.hpp"
 
 Compartment::Compartment(const Compartment& parent, const std::string& name, const double& length, const double& radius, const double& d_theta, const double& d_phi, const std::string& placement, const double& mRNA_decay_rate, const double& translation_rate, const double& protein_decay_rate, const double& mRNA_diffusion_constant, const double& protein_diffusion_constant, const double& mRNA_forward_trafficking_velocity, const double& mRNA_backward_trafficking_velocity, const double& protein_forward_trafficking_velocity, const double& protein_backward_trafficking_velocity) : theta(parent.theta+d_theta), phi(parent.phi+d_phi), name(name),length(length), x(parent.x + length*std::sin(theta)*std::cos(phi)), y(parent.y + length*std::sin(theta)*std::sin(phi)), z(parent.z + length*std::cos(theta)), r(radius), placement(placement), mRNA_decay_rate(mRNA_decay_rate), translation_rate(translation_rate), protein_decay_rate(protein_decay_rate), mRNA_diffusion_constant(mRNA_diffusion_constant), protein_diffusion_constant(protein_diffusion_constant), mRNA_forward_trafficking_velocity(mRNA_forward_trafficking_velocity), mRNA_backward_trafficking_velocity(mRNA_backward_trafficking_velocity), protein_forward_trafficking_velocity(protein_forward_trafficking_velocity), protein_backward_trafficking_velocity(protein_backward_trafficking_velocity), protein_creation(this),protein_decay(this),mRNA_creation(this),mRNA_decay(this) {
     if (placement == "end") // Most of the time
       return;
 
-    std::vector<double> offset(3);
     if(placement ==  "middle") {
       offset = coordinate_offset(parent);
     }
-    else if (placement == "random")
-      offset = coordinate_offset(parent);
+    else if (placement == "random") {
+      if (PRNG::instance().rand_max() != 1) {
+        std::cerr << "--- WARNING: Changing rand_max from " << PRNG::instance().rand_max() << " to " << "1 for random compartment placement\n";
+        PRNG::instance().set_max(1);
+      }
+      offset = coordinate_offset(parent, PRNG::instance()());
+    }
     else
       std::cerr << "--- ERROR: Unknown compartment placement method\n"
                 << "- Should be either \"end\", \"middle\" or \"random\".\n";

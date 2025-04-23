@@ -11,7 +11,7 @@ using namespace std;
 #define N_AVRG  10000
 #define N_FORKS 1 // Note that it is (2^N_FORKS - 1)*3 compartments (if 2 synapses on each dend seg)!
 
-PRNG rnd(1,1);
+PRNG::instance().set_seed(1);
 
 std::string file_name = "../../data/gillespie/all_stationary_time_correlations/stationary_time_correlations_24/TC_";
 
@@ -19,13 +19,13 @@ std::string file_name = "../../data/gillespie/all_stationary_time_correlations/s
 void fork_dendrite(Dendritic_segment* ds, size_t depth=0) {
   if (depth < N_FORKS) {
     auto ds1 = new Dendritic_segment(*ds, ds->get_name() + "-1");
-    new Spine(*ds1, "s_" + ds1->get_name() + "_1", .6, 6 + 6*(.5-rnd()));
-    new Spine(*ds1, "s_" + ds1->get_name() + "_2", .6, 6 + 6*(.5-rnd()));
+    new Spine(*ds1, "s_" + ds1->get_name() + "_1", .6, 6 + 6*(.5-PRNG::instance()()));
+    new Spine(*ds1, "s_" + ds1->get_name() + "_2", .6, 6 + 6*(.5-PRNG::instance()()));
     fork_dendrite(ds1, depth+1);
 
     auto ds2 = new Dendritic_segment(*ds, ds->get_name() + "-2");
-    new Spine(*ds2, "s_" + ds2->get_name() + "_1", .6, 6 + 6*(.5-rnd()));
-    new Spine(*ds2, "s_" + ds2->get_name() + "_2", .6, 6 + 6*(.5-rnd()));
+    new Spine(*ds2, "s_" + ds2->get_name() + "_1", .6, 6 + 6*(.5-PRNG::instance()()));
+    new Spine(*ds2, "s_" + ds2->get_name() + "_2", .6, 6 + 6*(.5-PRNG::instance()()));
     fork_dendrite(ds2, depth+1);
   }
 }
@@ -38,8 +38,8 @@ int main() {
   
   ///// Branching neuron
   Dendritic_segment* p_ds = new Dendritic_segment(soma, "d_1");
-  new Spine(*p_ds, "s_1_1", .6, 6 + 6*(.5-rnd()));
-  new Spine(*p_ds, "s_1_2", .6, 6 + 6*(.5-rnd()));
+  new Spine(*p_ds, "s_1_1", .6, 6 + 6*(.5-PRNG::instance()()));
+  new Spine(*p_ds, "s_1_2", .6, 6 + 6*(.5-PRNG::instance()()));
   fork_dendrite(p_ds);
 
   Neuron neuron(soma, "Test_neuron");

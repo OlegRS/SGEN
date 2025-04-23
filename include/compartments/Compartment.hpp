@@ -101,7 +101,8 @@ protected:
   double n_mRNA_expectation=0, n_prot_expectation=0;
   size_t n_mRNAs=0, n_proteins=0;
 
-  std::vector<double> coordinate_offset(const Compartment& parent, const double& length_fraction=.5); //Places the compartment to the middle of its parent
+  std::vector<double> coordinate_offset(const Compartment& parent, const double& length_fraction=.5); //Compute the offset to place the compartment on the surface of its parent at length_fraction of its length
+  std::vector<double> offset = {0,0,0}; //Coordinate offset of the compartment (needed if it is random)
 
   Compartment& clear_junctions() {
     it_p_out_junctions.clear();

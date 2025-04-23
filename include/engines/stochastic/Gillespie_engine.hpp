@@ -19,8 +19,6 @@ class Gillespie_engine {
 
   std::vector<Event*> p_events;
   size_t ev_ind = 0; // Event index (needed for recursions)
-  std::unique_ptr<PRNG> owned_prng;
-  PRNG& rnd;
 
   inline void write_results(const double& time, std::vector<double> &results);
   inline std::ostream& print_variables(std::ostream&);
@@ -31,25 +29,7 @@ public:
   Gillespie_engine(Neuron& neuron) :
     p_neuron(&neuron),
     dim(3 + 2*neuron.p_dend_segments.size() + neuron.p_spines.size()),
-    p_events(6 + 3*neuron.p_dend_segments.size() + neuron.p_spines.size() + 4*(neuron.n_SDJ + neuron.n_DDJ) + 2*neuron.n_DSJ),
-    owned_prng(std::make_unique<PRNG>(/*MAX_RAND=*/1)),
-    rnd(*owned_prng)
-  { initialise_from(*initialise_soma()); }
-
-  Gillespie_engine(Neuron& neuron, const int& seed) :
-    p_neuron(&neuron),
-    dim(3 + 2*neuron.p_dend_segments.size() + neuron.p_spines.size()),
-    p_events(6 + 3*neuron.p_dend_segments.size() + neuron.p_spines.size() + 4*(neuron.n_SDJ + neuron.n_DDJ) + 2*neuron.n_DSJ),
-    owned_prng(std::make_unique<PRNG>(/*MAX_RAND=*/1, seed)),
-    rnd(*owned_prng)
-  { initialise_from(*initialise_soma()); }
-
-  Gillespie_engine(Neuron& neuron, PRNG& prng) :
-    p_neuron(&neuron),
-    dim(3 + 2*neuron.p_dend_segments.size() + neuron.p_spines.size()),
-    p_events(6 + 3*neuron.p_dend_segments.size() + neuron.p_spines.size() + 4*(neuron.n_SDJ + neuron.n_DDJ) + 2*neuron.n_DSJ),
-    owned_prng(nullptr),
-    rnd(prng)
+    p_events(6 + 3*neuron.p_dend_segments.size() + neuron.p_spines.size() + 4*(neuron.n_SDJ + neuron.n_DDJ) + 2*neuron.n_DSJ)
   { initialise_from(*initialise_soma()); }
 
   Gillespie_engine& refresh() { initialise_from(*initialise_soma()); return *this; }

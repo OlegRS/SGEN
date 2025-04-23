@@ -1,4 +1,5 @@
 #include "../../../include/engines/morphologic/Morphologic_engine.hpp"
+#include "../../../include/randomisation/PRNG.hpp"
 
 std::vector<std::vector<std::vector<double>>> Morphologic_engine::segments() {
 
@@ -9,21 +10,7 @@ std::vector<std::vector<std::vector<double>>> Morphologic_engine::segments() {
   segs[0][1] = {soma.x, soma.y, soma.z, soma.r};
   
   for(auto& p_junc : p_neuron->p_junctions) {
-    if (p_junc->p_to->placement == "end")
-      segs[p_junc->p_to->id][0] = {p_junc->p_from->x,p_junc->p_from->y,p_junc->p_from->z,p_junc->p_from->r};
-    else if (p_junc->p_to->placement == "middle") {
-      std::vector<double> offset = p_junc->p_to->coordinate_offset(*p_junc->p_from);
-      segs[p_junc->p_to->id][0] = {p_junc->p_from->x+offset[0],p_junc->p_from->y+offset[1],p_junc->p_from->z+offset[2],p_junc->p_from->r};
-    }
-    else if (p_junc->p_to->placement == "random") {
-      std::vector<double> offset = p_junc->p_to->coordinate_offset(*p_junc->p_from);
-      segs[p_junc->p_to->id][0] = {p_junc->p_from->x+offset[0],p_junc->p_from->y+offset[1],p_junc->p_from->z+offset[2],p_junc->p_from->r};
-    }
-    else
-      std::cerr << "--- ERROR: Unknown placement method: \"" << p_junc->p_to->placement << '\"'
-                << "\n- for " << p_junc->p_to->name
-                << "\n- Should be either \"end\", \"middle\" or \"random\".\n";
-
+    segs[p_junc->p_to->id][0] = {p_junc->p_from->x+p_junc->p_to->offset[0],p_junc->p_from->y+p_junc->p_to->offset[1],p_junc->p_from->z+p_junc->p_to->offset[2],p_junc->p_from->r};
     segs[p_junc->p_to->id][1] = {p_junc->p_to->x,p_junc->p_to->y,p_junc->p_to->z,p_junc->p_to->r};
   }
   

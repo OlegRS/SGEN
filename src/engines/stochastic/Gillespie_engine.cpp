@@ -74,7 +74,7 @@ void Gillespie_engine::initialise_from(Compartment& comp) {
 
 inline double Gillespie_engine::draw_delta_t() {  
   // Sampling the time of an event
-  double delta_t = -log(1-rnd())/p_neuron->total_rate;
+  double delta_t = -std::log(1-PRNG::instance()())/p_neuron->total_rate;
 
   return delta_t; 
 }
@@ -84,7 +84,7 @@ inline double Gillespie_engine::draw_delta_t() {
 void Gillespie_engine::update_Gillespie() {  
   // Sampling the event
   size_t i=0;
-  double r = rnd()*p_neuron->total_rate;
+  double r = PRNG::instance()()*p_neuron->total_rate;
   for(double sum=p_events[0]->rate; sum<r; sum += p_events[i]->rate)
     if(++i >= p_events.size()) {
       // Recaculate total rate when numerical errors accumulate
@@ -119,7 +119,11 @@ void Gillespie_engine::update_Gillespie() {
 }
 
 Gillespie_engine& Gillespie_engine::run_Gillespie(const double& time) {
-  
+  if (PRNG::instance().rand_max() != 1) {
+    std::cerr << "--- WARNING: Changing rand_max from " << PRNG::instance().rand_max() << " to " << "1 for Gillespie simulation\n";
+    PRNG::instance().set_max(1);
+  }
+
   // FOR PRELIMINARY TESTING ONLY!!!
   std::cout << "t," << "Soma_AG," << "Soma_mRNA,"<< "Soma_Prot,";
   for(auto& p_ds : p_neuron->p_dend_segments)
@@ -145,6 +149,11 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const double& time) {
 }
 
 Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times, std::ostream& os, const double& time_offset) {
+  if (PRNG::instance().rand_max() != 1) {
+    std::cerr << "--- WARNING: Changing rand_max from " << PRNG::instance().rand_max() << " to " << "1 for Gillespie simulation\n";
+    PRNG::instance().set_max(1);
+  }
+
   std::cout << "Running Gillespie...\n";
   size_t event_count = 0;
   
@@ -183,6 +192,11 @@ Gillespie_engine& Gillespie_engine::run_Gillespie(const std::list<double>& times
 }
 
 std::vector<std::vector<double>> Gillespie_engine::run_Gillespie(const std::vector<double>& times, const std::string& file_name, const double& burn_in) {
+  if (PRNG::instance().rand_max() != 1) {
+    std::cerr << "--- WARNING: Changing rand_max from " << PRNG::instance().rand_max() << " to " << "1 for Gillespie simulation\n";
+    PRNG::instance().set_max(1);
+  }
+
   std::vector<std::vector<double>> results(times.size(), std::vector<double>(dim+1)); //+1 for time variable
   
   for(auto it_times=times.begin(); it_times!=times.end()-1;) {

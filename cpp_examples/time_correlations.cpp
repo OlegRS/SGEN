@@ -14,18 +14,16 @@ using namespace std;
 // #define syn_dec_rate 1.21e-6*3600
 // #define syn_dec_rate 1.21e-3*3600
 
-PRNG rnd(1);
-
 void fork_dendrite(Dendritic_segment* ds, size_t depth=0) {
   if (depth < N_FORKS) {
     auto ds1 = new Dendritic_segment(*ds, ds->get_name() + "-1");
-    new Spine(*ds1, "s_" + ds1->get_name() + "_1", .6, 6*(1 + rnd()), syn_dec_rate);
-    new Spine(*ds1, "s_" + ds1->get_name() + "_2", .6, 6*(1 + rnd()), syn_dec_rate);
+    new Spine(*ds1, "s_" + ds1->get_name() + "_1", .6, 6*(1 + PRNG::instance()()), syn_dec_rate);
+    new Spine(*ds1, "s_" + ds1->get_name() + "_2", .6, 6*(1 + PRNG::instance()()), syn_dec_rate);
     fork_dendrite(ds1, depth+1);
 
     auto ds2 = new Dendritic_segment(*ds, ds->get_name() + "-2");
-    new Spine(*ds2, "s_" + ds2->get_name() + "_1", .6, 6*(1 + rnd()), syn_dec_rate);
-    new Spine(*ds2, "s_" + ds2->get_name() + "_2", .6, 6*(1 + rnd()), syn_dec_rate);
+    new Spine(*ds2, "s_" + ds2->get_name() + "_1", .6, 6*(1 + PRNG::instance()()), syn_dec_rate);
+    new Spine(*ds2, "s_" + ds2->get_name() + "_2", .6, 6*(1 + PRNG::instance()()), syn_dec_rate);
     fork_dendrite(ds2, depth+1);
   }
 }
@@ -36,8 +34,8 @@ int main() {
   
   ///// Branching neuron
   Dendritic_segment* p_ds = new Dendritic_segment(soma, "d_1");
-  new Spine(*p_ds, "s_1_1", .6, 6 + 6*rnd(), syn_dec_rate);
-  new Spine(*p_ds, "s_1_2", .6, 6 + 6*rnd(), syn_dec_rate);
+  new Spine(*p_ds, "s_1_1", .6, 6 + 6*PRNG::instance()(), syn_dec_rate);
+  new Spine(*p_ds, "s_1_2", .6, 6 + 6*PRNG::instance()(), syn_dec_rate);
   
   // Dendritic_segment* p_ds_small = new Dendritic_segment(*p_ds, "d_2", 1);
   // fork_dendrite(p_ds_small);

@@ -10,9 +10,6 @@ void bind_Gillespie_engine(py::module& m) {
       .def(py::init<Neuron&>(),
            py::arg("neuron"),
            "Initialise Gillespie Engine for a given neuron.")
-      .def(py::init<Neuron&, const int&>(),
-           py::arg("neuron"), py::arg("seed"),
-           "Initialise Gillespie Engine for a given neuron and PRNG seed.")
       .def("run_Gillespie", py::overload_cast<const std::vector<double>&, const std::string&, const double&>(&Gillespie_engine::run_Gillespie),
            py::arg("record_times"), py::arg("file_name")="", py::arg("burn_in")=0,
            "Run Gillespie algorithm writing at record_times to file_name with offset time_offset")
