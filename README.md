@@ -2,7 +2,7 @@
 
 SGEN is a high-performance library for computing distributions of **mRNAs and proteins in arbitrary neurons**. The core of the library is written in **C++** and wrapped in **Python** using `pybind11`. 
 
-SGEN is primarily designed to be used through the `SGEN_Py` **Python module** but can also be used directly in C++.
+SGEN is primarily designed to be used through the `SGEN_Py` **Python library** but can also be used directly in C++.
 
 ## Installation
 
