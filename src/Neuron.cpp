@@ -151,10 +151,10 @@ Neuron::Neuron(const std::string& file_name, const std::string& name) : name(nam
         p_compartments[id-OFFSET-1] = p_soma = new Soma("soma_" + std::to_string(id-OFFSET), r, 0, 0, 0, r); // Place soma to the origin and assume it is oriented as (0,0,1) with radius and length r
       else if (type == BASAL_DENDRITE || type == APICAL_DENDRITE) {
         if (parent_id == 1) // If parent is SOMA
-          p_compartments[id-OFFSET-1] = new Dendritic_segment(*p_compartments[0], x, y, z, r, "ds_" + std::to_string(id), sqrt(x*x + y*y + z*z));
+          p_compartments[id-OFFSET-1] = new Dendritic_segment(*p_compartments[0], x, y, z, r, "ds_" + std::to_string(id), std::sqrt(x*x + y*y + z*z));
         else {
           Compartment* p_parent = p_compartments[parent_id-OFFSET-1];
-          p_compartments[id-OFFSET-1] = new Dendritic_segment(*p_parent, x, y, z, r, "ds_" + std::to_string(id), sqrt((x-p_parent->x)*(x-p_parent->x)+(y-p_parent->y)*(y-p_parent->y)+(z-p_parent->z)*(z-p_parent->z)));
+          p_compartments[id-OFFSET-1] = new Dendritic_segment(*p_parent, x, y, z, r, "ds_" + std::to_string(id), std::sqrt((x-p_parent->x)*(x-p_parent->x)+(y-p_parent->y)*(y-p_parent->y)+(z-p_parent->z)*(z-p_parent->z)));
         }
       }
     }

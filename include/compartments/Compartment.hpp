@@ -1,11 +1,13 @@
 #ifndef __COMPARTMENT_HPP__
 #define __COMPARTMENT_HPP__
 
+#include "../engines/stochastic/events/Event.hpp"
+
 #include <iostream>
 #include <list>
+#include <vector>
 #include <tuple>
-#include "../engines/stochastic/events/Event.hpp"
-#include <math.h>
+#include <cmath>
 
 #define PI 3.141592653589793
 
@@ -99,6 +101,8 @@ protected:
   double n_mRNA_expectation=0, n_prot_expectation=0;
   size_t n_mRNAs=0, n_proteins=0;
 
+  std::vector<double> coordinate_offset(const Compartment& parent, const double& length_fraction=.5); //Places the compartment to the middle of its parent
+
   Compartment& clear_junctions() {
     it_p_out_junctions.clear();
     it_p_in_junctions.clear();
@@ -116,26 +120,7 @@ public:
 
   Compartment(const Compartment& parent, const double& x, const double& y, const double& z, const double& radius=10, const std::string& name = "no_name", const double& length=200, const double& d_theta=0, const double& d_phi=0, const double& mRNA_decay_rate=0.0432, const double& translation_rate=75.6, const double& protein_decay_rate=0.004356, const double& mRNA_diffusion_constant=3.4e-3*3600, const double& protein_diffusion_constant=.24*3600, const double& mRNA_forward_trafficking_velocity=.5e-2*3600, const double& mRNA_backward_trafficking_velocity=.1e-2*3600, const double& protein_forward_trafficking_velocity=0, const double& protein_backward_trafficking_velocity=0) : name(name),length(length),protein_creation(this),protein_decay(this),mRNA_creation(this),mRNA_decay(this), x(x), y(y), z(z), r(radius), theta(parent.theta+d_theta), phi(parent.phi+d_phi), mRNA_decay_rate(mRNA_decay_rate), translation_rate(translation_rate), protein_decay_rate(protein_decay_rate), mRNA_diffusion_constant(mRNA_diffusion_constant), protein_diffusion_constant(protein_diffusion_constant), mRNA_forward_trafficking_velocity(mRNA_forward_trafficking_velocity), mRNA_backward_trafficking_velocity(mRNA_backward_trafficking_velocity), protein_forward_trafficking_velocity(protein_forward_trafficking_velocity), protein_backward_trafficking_velocity(protein_backward_trafficking_velocity) {}
 
-  Compartment(const Compartment& parent, const std::string& name = "no_name", const double& length=200, const double& radius=10, const double& d_theta=0, const double& d_phi=0, const std::string& placement="end", const double& mRNA_decay_rate=0.0432, const double& translation_rate=75.6, const double& protein_decay_rate=0.004356, const double& mRNA_diffusion_constant=3.4e-3*3600, const double& protein_diffusion_constant=.24*3600, const double& mRNA_forward_trafficking_velocity=.5e-2*3600, const double& mRNA_backward_trafficking_velocity=.1e-2*3600, const double& protein_forward_trafficking_velocity=0, const double& protein_backward_trafficking_velocity=0) : theta(parent.theta+d_theta), phi(parent.phi+d_phi), name(name),length(length), x(parent.x + length*sin(theta)*cos(phi)), y(parent.y + length*sin(theta)*sin(phi)), z(parent.z + length*cos(theta)), r(radius), placement(placement), mRNA_decay_rate(mRNA_decay_rate), translation_rate(translation_rate), protein_decay_rate(protein_decay_rate), mRNA_diffusion_constant(mRNA_diffusion_constant), protein_diffusion_constant(protein_diffusion_constant), mRNA_forward_trafficking_velocity(mRNA_forward_trafficking_velocity), mRNA_backward_trafficking_velocity(mRNA_backward_trafficking_velocity), protein_forward_trafficking_velocity(protein_forward_trafficking_velocity), protein_backward_trafficking_velocity(protein_backward_trafficking_velocity), protein_creation(this),protein_decay(this),mRNA_creation(this),mRNA_decay(this) {
-    if (placement == "end") // Most of the time
-      return;
-
-    double par_l,
-      par_theta = parent.get_theta(),
-      par_phi = parent.get_phi();
-
-    if(placement ==  "middle") 
-      par_l = parent.get_length()/2;
-    else if (placement == "random")
-      par_l = parent.get_length()/2;
-    else
-      std::cerr << "--- ERROR: Unknown compartment placement method\n"
-                << "- Should be either \"end\", \"middle\" or \"random\".\n";
-    
-    x -= par_l*sin(par_theta)*cos(par_phi);
-    y -= par_l*sin(par_theta)*sin(par_phi);
-    z -= par_l*cos(par_theta);
-  }
+  Compartment(const Compartment& parent, const std::string& name = "no_name", const double& length=200, const double& radius=10, const double& d_theta=0, const double& d_phi=0, const std::string& placement="end", const double& mRNA_decay_rate=0.0432, const double& translation_rate=75.6, const double& protein_decay_rate=0.004356, const double& mRNA_diffusion_constant=3.4e-3*3600, const double& protein_diffusion_constant=.24*3600, const double& mRNA_forward_trafficking_velocity=.5e-2*3600, const double& mRNA_backward_trafficking_velocity=.1e-2*3600, const double& protein_forward_trafficking_velocity=0, const double& protein_backward_trafficking_velocity=0);
   
   virtual Type type() const = 0;
   std::string get_name() const {return name;}

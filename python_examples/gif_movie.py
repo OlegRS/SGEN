@@ -99,7 +99,7 @@ def create_neuron_gif(neuron, record_times, output_gif="neuron_sim_br_p2_with_mR
         active_gene_count = active_gene_counts[t_index]
         print(f"Frame: {t_index}; Time: {time}")  # Debugging output
         
-        neuron.draw_3d(visualisation_values=rescaled_pc[:, t_index], plotter=plotter, scalar_bar_args=scalar_bar_args, clim=[rescaled_global_min, rescaled_global_max], mRNA_visualisation=True, mRNA_data=mRNA_counts, gene_visualisation=True, active_gene_count=active_gene_count, mRNA_radius=1)
+        neuron.draw_3d(visualisation_values=rescaled_pc[:, t_index], plotter=plotter, scalar_bar_args=scalar_bar_args, clim=[rescaled_global_min, rescaled_global_max], mRNA_visualisation=True, mRNA_data=mRNA_counts, gene_visualisation=True, active_gene_count=active_gene_count, mRNA_radius=1, opacity=.5)
         
         # Add time annotation
         plotter.add_text(f"Time: {time:.0f} hours", position='upper_left', font_size=12, color="black")

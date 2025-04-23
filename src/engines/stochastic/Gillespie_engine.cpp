@@ -1,5 +1,5 @@
-#include <math.h>
 #include "../../../include/engines/stochastic/Gillespie_engine.hpp"
+#include <cmath>
 
 Compartment* Gillespie_engine::initialise_soma() {
 

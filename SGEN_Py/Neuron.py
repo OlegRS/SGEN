@@ -196,7 +196,7 @@ class Neuron:
 
 
     # Plotting
-    def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None, plotter=None, scalar_bar_args=None, cbar_scale="linear", clim=None, mRNA_visualisation=False, mRNA_radius=None, mRNA_data=None, gene_visualisation=False, active_gene_count=None, gene_length=None, show_axes=False, camera_position=None):
+    def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None, plotter=None, scalar_bar_args=None, cbar_scale="linear", clim=None, mRNA_visualisation=False, mRNA_radius=None, mRNA_data=None, gene_visualisation=False, active_gene_count=None, gene_length=None, show_axes=False, camera_position=None, opacity=1):
         if "google.colab" in sys.modules:
             # Seems that only static plotting is supported by colab at the moment
             pv.global_theme.jupyter_backend = 'static'
@@ -276,14 +276,14 @@ class Neuron:
                     "vertical": False    # Orientation
                 }
             if mRNA_visualisation:
-                plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="viridis", clim=clim, show_edges=False, opacity=.5, scalar_bar_args=scalar_bar_args)
+                plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="viridis", clim=clim, show_edges=False, opacity=opacity, scalar_bar_args=scalar_bar_args)
             else:
                 plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="viridis", clim=clim, show_edges=False, scalar_bar_args=scalar_bar_args)
         else:
             if mRNA_visualisation:
-                plotter.add_mesh(neuron_mesh, color=color, show_edges=False, opacity=.5)
+                plotter.add_mesh(neuron_mesh, color=color, show_edges=False, opacity=opacity)
             else:
-                plotter.add_mesh(neuron_mesh, color=color, show_edges=False)
+                plotter.add_mesh(neuron_mesh, color=color, show_edges=False, opacity=opacity)
 
         if gene_visualisation:
             if gene_length is None:

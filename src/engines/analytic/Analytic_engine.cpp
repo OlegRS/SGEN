@@ -1,5 +1,5 @@
 #include "../../../include/engines/analytic/Analytic_engine.hpp"
-#include <math.h>
+#include <cmath>
 
 const Compartment* Analytic_engine::set_o1_mRNA_soma() {
   auto& soma = *p_neuron->p_soma;
@@ -2161,7 +2161,7 @@ Analytic_engine& Analytic_engine::nonstationary_covariances(const std::list<doub
     std::vector<double> rmss(o1_dim);
     std::cout << t;
     for(size_t i=0; i<o1_dim; ++i) {
-      rmss[i] = sqrt((*p_covariances)(o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
+      rmss[i] = std::sqrt((*p_covariances)(o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
       std::cout  << ',' << expectations(i) << ',' << rmss[i];
     }
     std::cout << std::endl;
@@ -2334,7 +2334,7 @@ Analytic_engine& Analytic_engine::sem_nonstationary_covariances(const std::list<
     std::vector<double> rmss(o1_dim);
     std::cout << t;
     for(size_t i=0; i<o1_dim; ++i) {
-      rmss[i] = sqrt((*p_covariances)(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
+      rmss[i] = std::sqrt((*p_covariances)(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
       std::cout  << ',' << expectations(i) << ',' << rmss[i];
     }
     std::cout << std::endl;
@@ -2491,7 +2491,7 @@ Analytic_engine& Analytic_engine::sem_nonstationary_covariances_using_integral(c
     std::vector<double> rmss(o1_dim);
     std::cout << t;
     for(size_t i=0; i<o1_dim; ++i) {
-      rmss[i] = sqrt((*p_covariances)(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
+      rmss[i] = std::sqrt((*p_covariances)(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
       // if(rmss[i]>=0) {
       //   std::cout << o1_var_names[i] + ": " << expectations(i) << ", " << rmss[i] << std::endl;
       // }
@@ -2605,7 +2605,7 @@ Analytic_engine& Analytic_engine::sem_nonstationary_covariances_direct_ODE_solve
     std::vector<double> rmss(o1_dim);
     std::cout << t;
     for(size_t i=0; i<o1_dim; ++i) {
-      rmss[i] = sqrt((*p_covariances)(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
+      rmss[i] = std::sqrt((*p_covariances)(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
       std::cout  << ',' << expectations(i) << ',' << rmss[i];
     }
     std::cout << std::endl;
@@ -2711,7 +2711,7 @@ Analytic_engine& Analytic_engine::sem_nonstationary_covariances_direct_ODE_solve
     std::vector<double> rmss(o1_dim);
     std::cout << t;
     for(size_t i=0; i<o1_dim; ++i) {
-      rmss[i] = sqrt((*p_covariances)(o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
+      rmss[i] = std::sqrt((*p_covariances)(o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
       std::cout  << ',' << expectations(i) << ',' << rmss[i];
     }
     std::cout << std::endl;
@@ -3486,7 +3486,7 @@ Analytic_engine& Analytic_engine::protein_protein_stationary_covariances(std::of
   size_t sz = 1 + p_neuron->p_dend_segments.size() + p_neuron->p_spines.size();
   std::vector<double> rmss(sz);
   for(size_t i=0; i<sz; ++i) {
-    rmss[i] = sqrt((*o2_prot_prot)[o2_ind(i, i, sz)] - protein_expectations[i]*(protein_expectations[i]-1));
+    rmss[i] = std::sqrt((*o2_prot_prot)[o2_ind(i, i, sz)] - protein_expectations[i]*(protein_expectations[i]-1));
     if(rmss[i]>=0) {
       std::cout << o1_prot_names[i] + ": " << protein_expectations(i) << ", " << rmss[i] << std::endl;
     }
@@ -3522,7 +3522,7 @@ Analytic_engine& Analytic_engine::stationary_covariances(bool write_covariance_m
 
   // std::vector<double> rmss(o1_dim);
   // for(size_t i=0; i<o1_dim; ++i) {  
-  //   rmss[i] = sqrt(covariances(o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
+  //   rmss[i] = std::sqrt(covariances(o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
   //   std::cerr << o1_var_names[i] + ": " << expectations(i) << ", " << rmss[i] << std::endl;
   // }
 
@@ -3549,7 +3549,7 @@ Analytic_engine& Analytic_engine::sem_stationary_covariances() {
 
   std::vector<double> rmss(o1_dim);
   for(size_t i=0; i<o1_dim; ++i) {
-    rmss[i] = sqrt(covariances(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
+    rmss[i] = std::sqrt(covariances(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
     std::cerr << o1_var_names[i] + ": " << expectations(i) << ", " << rmss[i]<< ", " << rmss[i]/expectations(i) << std::endl;
   }
 
@@ -3580,7 +3580,7 @@ Analytic_engine& Analytic_engine::sem_stationary_pearson_correlations() {
 
   std::vector<double> rmss(o1_dim);
   for(size_t i=0; i<o1_dim; ++i) {  
-    rmss[i] = sqrt(covariances(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
+    rmss[i] = std::sqrt(covariances(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
     std::cerr << o1_var_names[i] + ": " << expectations(i) << ", " << rmss[i]<< ", " << rmss[i]/expectations(i) << std::endl;
   }
 
@@ -3651,7 +3651,7 @@ Analytic_engine& Analytic_engine::sem_stationary_time_correlations(const std::li
 
   std::vector<double> rmss(o1_dim);
   for(size_t i=0; i<o1_dim; ++i) {
-    rmss[i] = sqrt((*p_covariances)(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
+    rmss[i] = std::sqrt((*p_covariances)(sem_o2_ind(i,i)) - expectations(i)*(expectations(i)-1));
     std::cerr << o1_var_names[i] + ": " << expectations(i) << ", " << rmss[i]<< ", " << rmss[i]/expectations(i) << std::endl;
   }
 
