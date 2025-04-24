@@ -20,9 +20,9 @@ class Gillespie_engine {
   std::vector<Event*> p_events;
   size_t ev_ind = 0; // Event index (needed for recursions)
 
-  inline void write_results(const double& time, std::vector<double> &results);
-  inline std::ostream& print_variables(std::ostream&);
-  inline std::ostream& print_variable_names(std::ostream&);
+  void write_results(const double& time, std::vector<double> &results);
+  std::ostream& print_variables(std::ostream&);
+  std::ostream& print_variable_names(std::ostream&);
   
 public:
 

@@ -12,10 +12,10 @@ import numpy as np
 import pyvista as pv
 import imageio
 
-def create_neuron_gif(neuron, record_times, output_gif="neuron_sim_br_p2_with_mRNA.gif", camera_position=None, frames_dir=None, sim_file_name=None, cbar_scale="linear"):
+def create_neuron_gif(neuron, record_times, output_gif="neuron_sim_br_p2_with_mRNA.gif", camera_position=None, frames_dir=None, sim_file_name=None, cbar_scale="linear", seed=1):
     expectations = neuron.expected_counts()['prot']
     if sim_file_name is None:
-        sg.set_PRNG_seed(1)
+        sg.set_PRNG_seed(seed)
         gillespie_data = neuron.stationary_Gillespie_sim(record_times, output_file_name="Gillespie_ordinary_spines")
     else:
         gillespie_data = neuron.load_Gillespie_sim(sim_file_name)
@@ -165,38 +165,38 @@ for i in np.arange(1,N_dendritic_segments):
 
 s_1_1 = sg.Spine(parent=primary_branch[N_dendritic_segments//3],
                  name="s_1_1",
-                 length=10,
+                 length=5,
                  radius=1,
                  placement="middle")
 s_1_2 = sg.Spine(parent=primary_branch[2*N_dendritic_segments//3],
                  name="s_1_2",
-                 length=10,
+                 length=5,
                  radius=1,
                  d_theta=-np.pi/2,
                  placement="middle")
 s_11_1 = sg.Spine(parent=secondary_branch_1[N_dendritic_segments//3],
                   name = "s_11_1",
-                  length=10,
+                  length=5,
                   radius=1,
                   binding_rate=.2,
                   placement="middle")
 s_11_2 = sg.Spine(parent=secondary_branch_1[2*N_dendritic_segments//3],
                   name = "s_11_2",
-                  length=10,
+                  length=5,
                   radius=1,
                   d_theta=-np.pi/2,
                   binding_rate=.2,
                   placement="middle")
 s_12_1 = sg.Spine(parent=secondary_branch_2[N_dendritic_segments//3],
                   name="s_12_1",
-                  length=10,
+                  length=5,
                   radius=1,
                   d_theta=-np.pi/2,
                   binding_rate=.2,
                   placement="middle")
 s_12_2 = sg.Spine(parent=secondary_branch_2[2*N_dendritic_segments//3],
                   name="s_12_2",
-                  length=10,
+                  length=5,
                   radius=1,
                   binding_rate=.2,
                   placement="middle")
@@ -207,4 +207,4 @@ neuron = sg.Neuron(soma, "neuron")
 record_times = np.linspace(0, 1000, num=500)  # Define time points for simulation
 # expectations = neuron.expected_counts()
 # create_neuron_gif(neuron, record_times, camera_position=[(0, Dendrite_length*3.2, Dendrite_length), (0, 0, Dendrite_length), (1, 0, 0)], sim_file_name="Gillespie_stat.csv", cbar_scale="uniform")
-create_neuron_gif(neuron, record_times, camera_position=[(0, Dendrite_length*3.2, Dendrite_length), (0, 0, Dendrite_length), (1, 0, 0)], cbar_scale="uniform")
+create_neuron_gif(neuron, record_times, camera_position=[(0, Dendrite_length*3.2, Dendrite_length), (0, 0, Dendrite_length), (1, 0, 0)], cbar_scale="uniform", seed=1)

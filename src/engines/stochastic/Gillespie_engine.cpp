@@ -197,7 +197,7 @@ std::vector<std::vector<double>> Gillespie_engine::run_Gillespie(const std::vect
     PRNG::instance().set_max(1);
   }
 
-  std::vector<std::vector<double>> results(times.size(), std::vector<double>(dim+1)); //+1 for time variable
+  std::vector<std::vector<double>> results(times.size(), std::vector<double>(2*(p_neuron->p_dend_segments.size()+p_neuron->p_spines.size())+4)); //+1 for time variable
   
   for(auto it_times=times.begin(); it_times!=times.end()-1;) {
     if(*it_times < 0) {
@@ -256,7 +256,7 @@ std::vector<std::vector<double>> Gillespie_engine::run_Gillespie(const std::vect
   }
   else {
     std::ofstream ofs(file_name);
-    print_variable_names(ofs << "time,") << std::endl;
+    print_variable_names(ofs) << std::endl;
     
     for(size_t t_ind=0; t_ind < times.size(); ) {
       if(times[t_ind] >= t) {
@@ -287,63 +287,65 @@ std::vector<std::vector<double>> Gillespie_engine::run_Gillespie(const std::vect
   return results;
 }
 
-inline void Gillespie_engine::write_results(const double& time, std::vector<double> &results) {
+void Gillespie_engine::write_results(const double& time, std::vector<double> &results) {
   
   results[0] = time;
   results[1] = p_neuron->p_soma->n_active_genes;
   results[2] = p_neuron->p_soma->n_mRNAs;
-  results[3] = p_neuron->p_soma->n_proteins;
 
-  size_t i=4;
+  unsigned prot_ind_shift = p_neuron->p_dend_segments.size()+p_neuron->p_spines.size() + 3;
+  results[prot_ind_shift] = p_neuron->p_soma->n_proteins;
 
-  for(auto& p_ds : p_neuron->p_dend_segments) {
-    results[i++] = p_ds->n_mRNAs;
-    results[i++] = p_ds->n_proteins;
+  for(auto& p_junc : p_neuron -> p_junctions) {
+    results[p_junc->p_to->id + 2] = p_junc->p_to->n_mRNAs;
+    results[p_junc->p_to->id + prot_ind_shift] = p_junc->p_to->n_proteins;
   }
-  
-  for(auto& p_s : p_neuron->p_spines)
-    results[i++] = p_s->n_proteins;
 }
 
-inline std::ostream& Gillespie_engine::print_variables(std::ostream& os) {
-  os << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs << ',' << p_neuron->p_soma->n_proteins;
-  for(auto& p_ds : p_neuron->p_dend_segments)
-    os << ',' << p_ds->n_mRNAs << ',' << p_ds->n_proteins;
-  for(auto& p_s : p_neuron->p_spines)
-    os << ',' << p_s->n_proteins;
+std::ostream& Gillespie_engine::print_variables(std::ostream& os) {
+  os << p_neuron->p_soma->n_active_genes << ',' << p_neuron->p_soma->n_mRNAs;
 
-  return os;
+  for(auto& p_junc : p_neuron->p_junctions)
+    os << ',' << p_junc->p_to->n_mRNAs;
+
+  os << ',' << p_neuron->p_soma->n_proteins;
+
+  for(auto& p_junc : p_neuron->p_junctions)
+    os << ',' << p_junc->p_to->n_proteins;
+
+    return os;
 }
 
-inline std::ostream& Gillespie_engine::print_variable_names(std::ostream& os) {
+std::ostream& Gillespie_engine::print_variable_names(std::ostream& os) {
   const Soma &soma = *p_neuron->p_soma;
-  os << soma.name << "_gene," << soma.name << "_mRNA,"<< soma.name << "_prot";
-  
-  for(auto& p_ds : p_neuron->p_dend_segments)
-    os << ',' << p_ds->name << "_mRNA," << p_ds->name << "_prot";
-  for(auto& p_s : p_neuron->p_spines)
-    os << ',' << p_s->name << "_prot";
+  os << "time," << soma.name << "_gene," << soma.name << "_mRNA";
+
+  for(auto& p_junc : p_neuron -> p_junctions)
+    os << ',' << p_junc->p_to->name + "_mRNA";
+
+  os << ',' << soma.name << "_prot";
+
+  for(auto& p_junc : p_neuron -> p_junctions)
+    os << ',' << p_junc->p_to->name + "_prot";
   
   return os;
 }
 
 std::vector<std::string> Gillespie_engine::variable_names() {
-
-  std::vector<std::string> var_names(dim);
-
-  var_names[0] = p_neuron->p_soma->name + "_gene";
-  var_names[1] = p_neuron->p_soma->name + "_mRNA";
-  var_names[2] = p_neuron->p_soma->name + "_prot";
-
-  size_t i=3;
-
-  for(auto& p_ds : p_neuron->p_dend_segments) {
-    var_names[i++] = p_ds->name + "_mRNA";
-    var_names[i++] = p_ds->name + "_prot";
-  }
   
-  for(auto& p_s : p_neuron->p_spines)
-    var_names[i++] = p_s->name + "_prot";
+  std::vector<std::string> var_names(2*(p_neuron->p_dend_segments.size()+p_neuron->p_spines.size())+4);
+
+  var_names[0] = "time";
+  var_names[1] = p_neuron->p_soma->name + "_gene";
+  var_names[2] = p_neuron->p_soma->name + "_mRNA";
+
+  unsigned prot_ind_shift = p_neuron->p_dend_segments.size()+p_neuron->p_spines.size() + 3;
+  var_names[prot_ind_shift] = p_neuron->p_soma->name + "_prot";
+
+  for(auto& p_junc : p_neuron -> p_junctions) {
+    var_names[p_junc->p_to->id + 2] = p_junc->p_to->name + "_mRNA";
+    var_names[p_junc->p_to->id + prot_ind_shift] = p_junc->p_to->name + "_prot";
+  }
   
   return var_names;
 }

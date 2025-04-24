@@ -3303,7 +3303,8 @@ void Analytic_engine::set_o2_mRNA_prot_matrix(const Compartment& parent) {
   for(auto& it_p_junc : parent.it_p_out_junctions) {
     auto& p_junc = *it_p_junc;
 
-    size_t parent_mRNA_ind = p_junc -> p_from -> mRNA_ind-1,
+    size_t
+      parent_mRNA_ind = p_junc -> p_from -> mRNA_ind-1,
       desc_mRNA_ind = p_junc -> p_to -> mRNA_ind-1,
       parent_prot_ind = p_junc -> p_from -> id,
       desc_prot_ind = p_junc -> p_to -> id;

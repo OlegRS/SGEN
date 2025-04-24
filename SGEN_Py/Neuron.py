@@ -130,14 +130,12 @@ class Neuron:
         return output
 
     # Simulation
-    def Gillespie_sim(self, record_times, output_file_name=None, n_avrg_trajectories=1, burn_in=0, reset=False, seed=None):
-        if seed is not None:
-            self._gillespie_engine = _sg._Gillespie_engine(self._neuron, seed)
+    def Gillespie_sim(self, record_times, output_file_name=None, n_avrg_trajectories=1, burn_in=0, reset=False):
         if(reset):
             self.reset()
         if n_avrg_trajectories < 1:
             raise ValueError("ERROR in run_Gillespie: Number of trajectories should be greater than zero")
-        var_names = ['time'] + self._gillespie_engine.variable_names()
+        var_names = self._gillespie_engine.variable_names()
         
         print("Running Gillespie...")
         if n_avrg_trajectories == 1:
@@ -160,13 +158,13 @@ class Neuron:
             var_dict.update({'time': np.array(record_times)})
         return var_dict
 
-    def stationary_Gillespie_sim(self, record_times, output_file_name=None, n_avrg_trajectories=1, burn_in_factor=5, seed=None):
+    def stationary_Gillespie_sim(self, record_times, output_file_name=None, n_avrg_trajectories=1, burn_in_factor=5):
         gene_timescale = max(1/self.soma().gene_activation_rate(), 1/self.soma().gene_deactivation_rate())
         burn_in = burn_in_factor*max(gene_timescale, max(self.mRNA_time_scales()), max(self.protein_time_scales()))
         print("Gillespie burn-in time: ", burn_in)
         if output_file_name is None:
-            return self.Gillespie_sim(record_times, n_avrg_trajectories=n_avrg_trajectories, burn_in=burn_in, seed=seed)
-        return self.Gillespie_sim(record_times, output_file_name, n_avrg_trajectories, burn_in, seed=seed)
+            return self.Gillespie_sim(record_times, n_avrg_trajectories=n_avrg_trajectories, burn_in=burn_in)
+        return self.Gillespie_sim(record_times, output_file_name, n_avrg_trajectories, burn_in)
    
     def load_Gillespie_sim(self, file_name):
         with open(file_name, "r") as f:
@@ -329,7 +327,7 @@ class Neuron:
                     n = np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)]) # Normal vector to the transversal plane
                     rdip =  rd - (rd@n)*n # Random direction in transversal plane
                     rdip /= np.linalg.norm(rdip)
-                    td = np.random.uniform(0,r-mRNA_radius) # Transversal displacement
+                    td = np.random.uniform(mRNA_radius-r, r-mRNA_radius) # Transversal displacement
                     center = end_pos - l_pos*n + td*rdip
                     plotter.add_mesh(pv.Sphere(radius=mRNA_radius, center=center), color="black")
                         
@@ -343,7 +341,7 @@ class Neuron:
                         n = np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)]) # Normal vector to the transversal plane
                         rdip =  rd - (rd@n)*n # Random direction in transversal plane
                         rdip /= np.linalg.norm(rdip)
-                        td = np.random.uniform(0,r-mRNA_radius) # Transversal displacement
+                        td = np.random.uniform(mRNA_radius-r,r-mRNA_radius) # Transversal displacement
                         center = end_pos - l_pos*n + td*rdip
                         plotter.add_mesh(pv.Sphere(radius=mRNA_radius, center=center), color="black")
             else:
@@ -359,7 +357,7 @@ class Neuron:
                         n = np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)]) # Normal vector to the transversal plane
                         rdip =  rd - (rd@n)*n # Random direction in transversal plane
                         rdip /= np.linalg.norm(rdip)
-                        td = np.random.uniform(0,r-mRNA_radius) # Transversal displacement
+                        td = np.random.uniform(mRNA_radius-r,r-mRNA_radius) # Transversal displacement
                         center = end_pos - l_pos*n + td*rdip
                         plotter.add_mesh(pv.Sphere(radius=mRNA_radius, center=center), color="black")
                     
@@ -375,7 +373,7 @@ class Neuron:
                             n = np.array([np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)]) # Normal vector to the transversal plane
                             rdip =  rd - (rd@n)*n # Random direction in transversal plane
                             rdip /= np.linalg.norm(rdip)
-                            td = np.random.uniform(0,r-mRNA_radius) # Transversal displacement
+                            td = np.random.uniform(mRNA_radius-r,r-mRNA_radius) # Transversal displacement
                             center = end_pos - l_pos*n + td*rdip
                             plotter.add_mesh(pv.Sphere(radius=mRNA_radius, center=center), color="black")
                     else:
