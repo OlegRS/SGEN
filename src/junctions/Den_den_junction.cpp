@@ -3,24 +3,27 @@
 
 Junction& Neuron::Den_den_junction::set_hopping_rate_constants() {
 
-  double
-    diffusion_scaling_factor = ( 1/((p_from->length)*(p_from->length)) + 1/((p_to->length)*(p_to->length)) )/2.,
-    trafficking_scaling_factor = ( 1/(p_from->length) + 1/(p_to->length) )/2.; //p_from->cross_section()
+  double min_cs = p_to->cross_section(); //Contact area between two compartments
+  if(p_from->cross_section() < min_cs)
+    min_cs = p_from->cross_section();
 
   double
-    mRNA_fwd_diff_rate = p_from->mRNA_diffusion_constant * diffusion_scaling_factor,
-    mRNA_bkwd_diff_rate = p_to->mRNA_diffusion_constant * diffusion_scaling_factor,
-    mRNA_fwd_traff_rate = p_from->mRNA_forward_trafficking_velocity * trafficking_scaling_factor,
-    mRNA_bkwd_traff_rate = p_to->mRNA_backward_trafficking_velocity * trafficking_scaling_factor,
-    prot_fwd_diff_rate = p_from->protein_diffusion_constant * diffusion_scaling_factor,
-    prot_bkwd_diff_rate = p_to->protein_diffusion_constant * diffusion_scaling_factor,
-    prot_fwd_traff_rate = p_from->protein_forward_trafficking_velocity * trafficking_scaling_factor,
-    prot_bkwd_traff_rate = p_to->protein_backward_trafficking_velocity * trafficking_scaling_factor;
+    fwd_diff_factor = min_cs/((p_from->length)*(p_from->length)*p_from->cross_section()),
+    bkwd_diff_factor = min_cs/((p_to->length)*(p_to->length)*p_to->cross_section()),
     
-  fwd_mRNA_hop_rate = (mRNA_fwd_diff_rate + mRNA_fwd_traff_rate);///static_cast<Dendritic_segment*>(p_from)->n_descending_DS;
+    mRNA_fwd_diff_rate = p_from->mRNA_diffusion_constant * fwd_diff_factor,
+    mRNA_bkwd_diff_rate = p_to->mRNA_diffusion_constant * bkwd_diff_factor,    
+    mRNA_fwd_traff_rate = p_from->mRNA_forward_trafficking_velocity / p_from->length,
+    mRNA_bkwd_traff_rate = p_to->mRNA_backward_trafficking_velocity / p_to->length,    
+    prot_fwd_diff_rate = p_from->protein_diffusion_constant * fwd_diff_factor,
+    prot_bkwd_diff_rate = p_to->protein_diffusion_constant * bkwd_diff_factor,    
+    prot_fwd_traff_rate = p_from->protein_forward_trafficking_velocity / p_from->length,
+    prot_bkwd_traff_rate = p_to->protein_backward_trafficking_velocity / p_to->length;
+    
+  fwd_mRNA_hop_rate = mRNA_fwd_diff_rate + mRNA_fwd_traff_rate;
   bkwd_mRNA_hop_rate = mRNA_bkwd_diff_rate + mRNA_bkwd_traff_rate;
 
-  fwd_prot_hop_rate = (prot_fwd_diff_rate + prot_fwd_traff_rate);///static_cast<Dendritic_segment*>(p_from)->n_descending_DS;
+  fwd_prot_hop_rate = prot_fwd_diff_rate + prot_fwd_traff_rate;
   bkwd_prot_hop_rate = prot_bkwd_diff_rate + prot_bkwd_traff_rate;
 
   return *this;

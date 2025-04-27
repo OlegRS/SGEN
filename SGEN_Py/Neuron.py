@@ -194,7 +194,7 @@ class Neuron:
 
 
     # Plotting
-    def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None, plotter=None, scalar_bar_args=None, cbar_scale="linear", clim=None, mRNA_visualisation=False, mRNA_radius=None, mRNA_data=None, gene_visualisation=False, active_gene_count=None, gene_length=None, show_axes=False, camera_position=None, opacity=1):
+    def draw_3d(self, visualisation_values=None, color='#32CD32', file_name=None, plotter=None, scalar_bar_args=None, cbar_scale="linear", clim=None, mRNA_visualisation=False, mRNA_radius=None, mRNA_data=None, gene_visualisation=False, active_gene_count=None, gene_length=None, show_axes=False, camera_position=None, opacity=1, annotations=None, cmap="viridis"):
         if "google.colab" in sys.modules:
             # Seems that only static plotting is supported by colab at the moment
             pv.global_theme.jupyter_backend = 'static'
@@ -217,13 +217,14 @@ class Neuron:
             visualisation_values = np.flip(visualisation_values)
             
             if cbar_scale == "uniform":
-                expected_concentrations = self.expected_counts()["prot"] / neuron.volumes()
+                expected_concentrations = self.expected_counts()["prot"] / self.volumes()
                 expected_concentrations_appended = np.append(expected_concentrations, [clim[0] - 1e-7, clim[1] + 1e-7])
                 sorted_ec = np.sort(expected_concentrations_appended)
                 rescaled_pc = np.zeros(visualisation_values.shape)
                 for i in range(visualisation_values.shape[0]):
                     m = np.searchsorted(sorted_ec, visualisation_values[i])-1 # Find index: sorted_ec[m] < visualisation_values[i] < sorted_ec[m+1]
                     rescaled_pc[i] = m + (visualisation_values[i] - sorted_ec[m])/(sorted_ec[m+1] - sorted_ec[m])
+
             elif cbar_scale == "log":
                 rescaled_pc = np.log(visualisation_values)
             elif cbar_scale == "linear":
@@ -250,7 +251,7 @@ class Neuron:
 
         SHOW_PLOTTER = False
         if plotter is None:
-            plotter = pv.Plotter()  # Default to new plotter only if none provided
+            plotter = pv.Plotter()
             SHOW_PLOTTER = True
         else:
             plotter.clear()
@@ -258,7 +259,8 @@ class Neuron:
         if visualisation_values is not None:
             flat_scalars = np.concatenate(all_scalars)
             neuron_mesh.cell_data["Protein Levels"] = flat_scalars
-            if scalar_bar_args is not None:
+
+            if scalar_bar_args is None:
                 # Define colorbar parameters
                 scalar_bar_args = {
                     "title": "Protein Concentration",
@@ -269,19 +271,21 @@ class Neuron:
                     # "position_y": 0.05,  # Vertical position in range [0,1]
                     # "width": 0.08,       # Width of the bar in figure coords
                     # "height": 0.9,       # Height of the bar in figure coords
-                    "n_labels": 5,       # Number of tick labels (can be overridden below)
+                    "n_labels": 0,       # Number of tick labels (can be overridden below)
                     "fmt": "%.2e",       # Format string for tick labels
                     "vertical": False    # Orientation
                 }
+
+                
             if mRNA_visualisation:
-                plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="viridis", clim=clim, show_edges=False, opacity=opacity, scalar_bar_args=scalar_bar_args)
+                plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap=cmap, clim=clim, show_edges=False, opacity=opacity, scalar_bar_args=scalar_bar_args, annotations=annotations)
             else:
-                plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap="viridis", clim=clim, show_edges=False, scalar_bar_args=scalar_bar_args)
+                plotter.add_mesh(neuron_mesh, scalars="Protein Levels", cmap=cmap, clim=clim, show_edges=False, scalar_bar_args=scalar_bar_args, annotations=annotations)
         else:
             if mRNA_visualisation:
-                plotter.add_mesh(neuron_mesh, color=color, show_edges=False, opacity=opacity)
+                plotter.add_mesh(neuron_mesh, color=color, show_edges=False, opacity=opacity, annotations=annotations)
             else:
-                plotter.add_mesh(neuron_mesh, color=color, show_edges=False, opacity=opacity)
+                plotter.add_mesh(neuron_mesh, color=color, show_edges=False, opacity=opacity, annotations=annotations)
 
         if gene_visualisation:
             if gene_length is None:
